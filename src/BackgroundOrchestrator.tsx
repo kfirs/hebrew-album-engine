@@ -10,6 +10,8 @@ export interface BackgroundOrchestratorProps {
   global?: string | null;
   /** Page-level override; when present it is painted on top of the global layer. */
   override?: string | null;
+  /** Decorative layer painted over the backdrops but under the content. */
+  ornament?: ReactNode;
   children: ReactNode;
   className?: string;
   style?: CSSProperties;
@@ -23,6 +25,7 @@ export interface BackgroundOrchestratorProps {
 export function BackgroundOrchestrator({
   global,
   override,
+  ornament,
   children,
   className,
   style,
@@ -40,6 +43,7 @@ export function BackgroundOrchestrator({
       {hasOverride ? (
         <div className="ae-bg__layer" style={overrideLayer} aria-hidden="true" />
       ) : null}
+      {ornament}
       <div className="ae-bg__content">{children}</div>
     </div>
   );

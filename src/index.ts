@@ -15,7 +15,7 @@ export { GridView } from "./layouts/GridView";
 export { useAutoplay } from "./hooks/useAutoplay";
 export { backgroundStyle } from "./utils/background";
 
-export { LAYOUT_TYPES, COVER_STYLE_TYPES } from "./types";
+export { LAYOUT_TYPES, COVER_STYLE_TYPES, PAGE_STYLE_TYPES } from "./types";
 export type {
   AlbumConfig,
   AlbumEngineProps,
@@ -24,6 +24,7 @@ export type {
   LayoutType,
   LayoutViewProps,
   PageConfig,
+  PageStyleType,
   ViewVariant,
 } from "./types";
 // <editor-fold defaultstate="collapsed" desc="AI Generated Code - End">

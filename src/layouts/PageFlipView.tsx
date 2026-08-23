@@ -3,13 +3,19 @@
 // Generated on: 2026-08-23 13:52:00
 // </editor-fold>
 import { PageFlip } from "page-flip";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 
+import { BlankPage } from "../BlankPage";
 import { CoverWrapper } from "../covers/CoverWrapper";
 import { GreetingPage } from "../GreetingPage";
 import { useAutoplay } from "../hooks/useAutoplay";
+import { useSpreads } from "../hooks/useSpreads";
+import { pairSplitGreetings } from "../utils/pairSpreads";
 import type { AlbumSlide, LayoutViewProps } from "../types";
+
+/** Narrowest a single leaf may get; also decides when two of them fit. */
+const MIN_PAGE_WIDTH = 260;
 
 /**
  * Hardcover book layout.
@@ -36,6 +42,14 @@ export function PageFlipView({
   const [total, setTotal] = useState(slides.length);
   const [interacted, setInteracted] = useState(false);
 
+  // Spacers only make sense while two leaves are visible at once, so the book
+  // is rebuilt with or without them as the window crosses the threshold.
+  const spreads = useSpreads(hostRef, MIN_PAGE_WIDTH * 2);
+  const leaves = useMemo(
+    () => (spreads ? pairSplitGreetings(slides) : slides),
+    [slides, spreads],
+  );
+
   const changeRef = useRef(onPageChange);
   changeRef.current = onPageChange;
 
@@ -51,7 +65,7 @@ export function PageFlipView({
     host.appendChild(mount);
 
     const roots: Root[] = [];
-    const pageElements = slides.map((slide) => {
+    const pageElements = leaves.map((slide) => {
       const el = document.createElement("div");
       el.className = "ae-flip__page";
       el.setAttribute("data-density", coverDensity(slide));
@@ -60,16 +74,7 @@ export function PageFlipView({
       el.appendChild(inner);
 
       const root = createRoot(inner);
-      root.render(
-        slide.kind === "page" ? (
-          <GreetingPage album={album} page={slide.page} part={slide.part} />
-        ) : (
-          <CoverWrapper
-            album={album}
-            face={slide.kind === "front-cover" ? "front" : "back"}
-          />
-        ),
-      );
+      root.render(renderLeaf(album, slide));
       roots.push(root);
       mount.appendChild(el);
       return el;
@@ -79,7 +84,7 @@ export function PageFlipView({
       width: 460,
       height: 620,
       size: "stretch",
-      minWidth: 260,
+      minWidth: MIN_PAGE_WIDTH,
       maxWidth: 900,
       minHeight: 340,
       maxHeight: 1200,
@@ -118,7 +123,7 @@ export function PageFlipView({
     };
     // Rebuilding the book is the only safe way to react to content changes,
     // since StPageFlip takes ownership of the page DOM after loadFromHTML.
-  }, [album, slides]);
+  }, [album, leaves]);
 
   const goNext = useCallback(() => {
     const book = flipRef.current;
@@ -203,8 +208,25 @@ export function PageFlipView({
   );
 }
 
-/** Covers are rigid boards; greeting pages are soft sheets. */
+function renderLeaf(album: LayoutViewProps["album"], slide: AlbumSlide) {
+  if (slide.kind === "page") {
+    return <GreetingPage album={album} page={slide.page} part={slide.part} />;
+  }
+  if (slide.kind === "blank") {
+    return <BlankPage album={album} />;
+  }
+  return (
+    <CoverWrapper
+      album={album}
+      face={slide.kind === "front-cover" ? "front" : "back"}
+    />
+  );
+}
+
+/** Covers are rigid boards; everything inside the book is a soft sheet. */
 function coverDensity(slide: AlbumSlide): "hard" | "soft" {
-  return slide.kind === "page" ? "soft" : "hard";
+  return slide.kind === "front-cover" || slide.kind === "back-cover"
+    ? "hard"
+    : "soft";
 }
 // <editor-fold defaultstate="collapsed" desc="AI Generated Code - End">

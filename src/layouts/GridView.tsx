@@ -28,7 +28,14 @@ export function GridView({ album, slides }: LayoutViewProps) {
         {pages.map((slide) => (
           <article key={slide.key} className="ae-grid__item">
             {slide.kind === "page" ? (
-              <GreetingPage album={album} page={slide.page} part={slide.part} />
+              // Grid cards grow with their content, so a long greeting gets a
+              // taller card instead of smaller type.
+              <GreetingPage
+                album={album}
+                page={slide.page}
+                part={slide.part}
+                fitToPage={false}
+              />
             ) : null}
           </article>
         ))}

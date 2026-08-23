@@ -49,18 +49,26 @@ export function SliderView({
         onSlideChange={(swiper) => onPageChange?.(swiper.realIndex)}
         className="ae-slider__swiper"
       >
-        {slides.map((slide) => (
-          <SwiperSlide key={slide.key} className="ae-slider__slide">
-            {slide.kind === "page" ? (
-              <GreetingPage album={album} page={slide.page} part={slide.part} />
-            ) : (
-              <CoverWrapper
-                album={album}
-                face={slide.kind === "front-cover" ? "front" : "back"}
-              />
-            )}
-          </SwiperSlide>
-        ))}
+        {/* Spacers exist to fix spread parity in the book; a carousel shows one
+            slide at a time, so a blank here would just be a slide to skip. */}
+        {slides
+          .filter((slide) => slide.kind !== "blank")
+          .map((slide) => (
+            <SwiperSlide key={slide.key} className="ae-slider__slide">
+              {slide.kind === "page" ? (
+                <GreetingPage
+                  album={album}
+                  page={slide.page}
+                  part={slide.part}
+                />
+              ) : (
+                <CoverWrapper
+                  album={album}
+                  face={slide.kind === "front-cover" ? "front" : "back"}
+                />
+              )}
+            </SwiperSlide>
+          ))}
       </Swiper>
     </div>
   );

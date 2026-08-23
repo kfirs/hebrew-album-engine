@@ -65,7 +65,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* `safe` keeps the top of an over-long greeting reachable; plain `center`
+     would push it past the scroll origin where it can never be scrolled to.
+     Scrolling only ever engages for text that stayed too long even after
+     useFitText shrank it as far as it is allowed to. */
+  justify-content: safe center;
+  overflow-y: auto;
   gap: clamp(12px, 2.5vh, 28px);
   padding: clamp(16px, 4%, 40px);
   height: 100%;
@@ -100,9 +105,12 @@
   max-width: 62ch;
 }
 
+/* `--ae-fit` is 1 unless useFitText had to shrink an over-long greeting. It
+   lives on the body so the wish and its signature scale together. */
 .ae-page__text {
   margin: 0;
   direction: rtl;
+  font-size: calc(1em * var(--ae-fit, 1));
   line-height: 1.75;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -112,7 +120,7 @@
 .ae-page__author {
   margin: 0.9em 0 0;
   direction: rtl;
-  font-size: 0.82em;
+  font-size: calc(0.82em * var(--ae-fit, 1));
   font-style: italic;
   opacity: 0.72;
 }
@@ -121,14 +129,106 @@
   content: "— ";
 }
 
-/* A photo with the page to itself can sit closer to the edges, and a long wish
-   that no longer shares the page is free to scroll rather than overflow. */
+/* A photo with the page to itself can sit closer to the edges. */
 .ae-page--photo > .ae-bg__content {
   padding: clamp(10px, 2.5%, 28px);
 }
 
-.ae-page--text > .ae-bg__content {
-  overflow-y: auto;
+/* ---------- Album-wide page styles ---------- */
+
+/* The decorative layer sits over both backdrops and under the greeting: the
+   element itself carries the material (paper, foil) and its pseudo-element the
+   frame, so a style can draw an inset keyline without inseting its wash. */
+.ae-page__ornament {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ae-page__ornament::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+/* MINIMAL: the album's own backdrop, undressed. */
+.ae-page--style-minimal .ae-page__ornament::before {
+  display: none;
+}
+
+/* VINTAGE: aged paper wash inside an inset double keyline. */
+.ae-page--style-vintage .ae-page__ornament {
+  background-color: #f6ecd9;
+  background-image: radial-gradient(
+    ellipse at 50% 22%,
+    rgba(255, 255, 255, 0.72),
+    rgba(160, 128, 78, 0.26)
+  );
+}
+
+.ae-page--style-vintage .ae-page__ornament::before {
+  inset: clamp(12px, 3%, 24px);
+  border: 2px solid rgba(120, 92, 52, 0.42);
+  outline: 1px solid rgba(120, 92, 52, 0.38);
+  outline-offset: 6px;
+  border-radius: 6px;
+}
+
+/* MODERN_BORDER: one heavy frame with the same clipped corner as the cover. */
+.ae-page--style-modern-border .ae-page__ornament::before {
+  inset: clamp(10px, 2.4%, 20px);
+  border: 3px solid currentColor;
+  border-radius: 4px;
+  opacity: 0.42;
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 82% 100%, 0 100%);
+}
+
+/* FLORAL_FRAME: a soft double ring echoing the cover's rounded border. */
+.ae-page--style-floral-frame .ae-page__ornament::before {
+  inset: clamp(10px, 2.4%, 20px);
+  border: 1px solid currentColor;
+  outline: 1px solid currentColor;
+  outline-offset: 5px;
+  border-radius: 24px;
+  opacity: 0.26;
+}
+
+/* GOLD_FOIL: deep ground and filigree keyline. The ink is set on the page so a
+   greeting that never chose a colour comes out gold instead of unreadable. */
+.ae-page--style-gold-foil {
+  color: #e8cd7a;
+}
+
+.ae-page--style-gold-foil .ae-page__ornament {
+  background-color: #10131f;
+  background-image: radial-gradient(
+    ellipse at 50% 26%,
+    rgba(212, 175, 55, 0.2),
+    rgba(8, 10, 18, 0.92)
+  );
+}
+
+.ae-page--style-gold-foil .ae-page__ornament::before {
+  inset: clamp(12px, 3%, 22px);
+  border: 1px solid rgba(230, 198, 100, 0.5);
+  outline: 3px double rgba(230, 198, 100, 0.32);
+  outline-offset: 5px;
+  border-radius: 2px;
+}
+
+.ae-page--style-gold-foil .ae-page__media img {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 14px 36px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(230, 198, 100, 0.35) inset;
+}
+
+/* A page given its own backdrop asked for that backdrop to be seen, so the
+   materials stop here and only the frames carry on. Last in the block because
+   it has to outrank every style rule above it. */
+.ae-page--custom-bg .ae-page__ornament {
+  background: none;
 }
 
 /* ---------- Cover wrapper ---------- */

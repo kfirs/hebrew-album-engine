@@ -30,6 +30,21 @@ export const COVER_STYLE_TYPES: readonly CoverStyleType[] = [
   "GOLD_FOIL",
 ];
 
+/**
+ * Decorative treatment applied to every greeting page. Deliberately a subset of
+ * the cover styles: `PHOTO_FULL` is a hero-image treatment with nothing to
+ * bleed on a page, so an album synced from such a cover falls back to `MINIMAL`.
+ */
+export type PageStyleType = Exclude<CoverStyleType, "PHOTO_FULL">;
+
+export const PAGE_STYLE_TYPES: readonly PageStyleType[] = [
+  "MINIMAL",
+  "VINTAGE",
+  "MODERN_BORDER",
+  "FLORAL_FRAME",
+  "GOLD_FOIL",
+];
+
 /** A single greeting page. Mirrors the `Page` relational model. */
 export interface PageConfig {
   id: string;
@@ -72,9 +87,15 @@ export interface AlbumConfig {
   coverImageUrl?: string | null;
   coverTextColor?: string | null;
 
+  /** Decorative treatment for the greeting pages, mirroring the cover styles. */
+  pageStyle?: PageStyleType | null;
+  /** Dresses the pages in the cover's style instead of `pageStyle`. */
+  syncPageStyleWithCover?: boolean;
+
   /**
    * Typography for every greeting that does not override it, so one choice can
-   * restyle a whole album.
+   * restyle a whole album. A null colour lets the page style pick the ink,
+   * which is what keeps a greeting legible on a dark page.
    */
   defaultFontFamily?: string | null;
   defaultFontSize?: string | null;
@@ -122,5 +143,11 @@ export type GreetingPart = "text" | "photo";
 export type AlbumSlide =
   | { kind: "front-cover"; key: string }
   | { kind: "back-cover"; key: string }
+  /**
+   * A spacer the book inserts to keep a split greeting's two halves on the same
+   * spread. It carries no content and only exists while pages are shown in
+   * pairs.
+   */
+  | { kind: "blank"; key: string }
   | { kind: "page"; key: string; page: PageConfig; part?: GreetingPart };
 // <editor-fold defaultstate="collapsed" desc="AI Generated Code - End">
