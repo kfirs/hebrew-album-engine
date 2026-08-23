@@ -40,6 +40,7 @@ export interface PageConfig {
   text: string;
   /** Signature line rendered beneath the greeting. */
   authorName?: string | null;
+  /** Typography overrides. Null or absent means inherit the album default. */
   fontFamily?: string | null;
   fontSize?: string | null;
   textColor?: string | null;
@@ -70,6 +71,15 @@ export interface AlbumConfig {
   coverStyle?: CoverStyleType | null;
   coverImageUrl?: string | null;
   coverTextColor?: string | null;
+
+  /**
+   * Typography for every greeting that does not override it, so one choice can
+   * restyle a whole album.
+   */
+  defaultFontFamily?: string | null;
+  defaultFontSize?: string | null;
+  defaultTextColor?: string | null;
+  defaultTextAlign?: string | null;
 
   pages: PageConfig[];
 }

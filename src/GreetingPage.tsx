@@ -11,13 +11,19 @@ export interface GreetingPageProps {
   page: PageConfig;
 }
 
-/** Renders a single greeting: optional photo plus the styled Hebrew wish. */
+/**
+ * Renders a single greeting: optional photo plus the styled Hebrew wish.
+ * Typography resolves page override → album default → engine fallback, so an
+ * album-wide choice reaches every greeting that has not asked for its own.
+ */
 export function GreetingPage({ album, page }: GreetingPageProps) {
   const textStyle: CSSProperties = {
-    fontFamily: page.fontFamily || "Rubik",
-    fontSize: page.fontSize || "18px",
-    color: page.textColor || "#000000",
-    textAlign: (page.textAlign || "right") as CSSProperties["textAlign"],
+    fontFamily: page.fontFamily || album.defaultFontFamily || "Rubik",
+    fontSize: page.fontSize || album.defaultFontSize || "18px",
+    color: page.textColor || album.defaultTextColor || "#000000",
+    textAlign: (page.textAlign ||
+      album.defaultTextAlign ||
+      "right") as CSSProperties["textAlign"],
   };
 
   return (
