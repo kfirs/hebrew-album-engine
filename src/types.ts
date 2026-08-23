@@ -52,7 +52,14 @@ export interface PageConfig {
   imageUrl?: string | null;
   /** Page-level background override: a CSS gradient/color string or an image URL. */
   backgroundConfig?: string | null;
-  text: string;
+  /**
+   * The greeting, as markup, rendered without further escaping.
+   *
+   * The engine is a rendering library and does no sanitising: whatever puts a
+   * value here is responsible for it being safe. Callers accepting greetings
+   * from anyone but the album's owner must sanitise on the way in.
+   */
+  html: string;
   /** Signature line rendered beneath the greeting. */
   authorName?: string | null;
   /** Typography overrides. Null or absent means inherit the album default. */

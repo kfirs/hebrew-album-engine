@@ -59,7 +59,7 @@ export function GreetingPage({
   const showText = part !== "photo";
 
   useFitText(bodyRef, fitToPage && showText, [
-    page.text,
+    page.html,
     page.authorName,
     fontSize,
     textStyle.fontFamily,
@@ -88,7 +88,10 @@ export function GreetingPage({
         // Typography sits on the body so the signature stays proportional to
         // the greeting and both shrink together when the page runs short.
         <div className="ae-page__body" ref={bodyRef} style={textStyle}>
-          <p className="ae-page__text">{page.text}</p>
+          <div
+            className="ae-page__text"
+            dangerouslySetInnerHTML={{ __html: page.html }}
+          />
           {page.authorName?.trim() ? (
             <p className="ae-page__author">{page.authorName}</p>
           ) : null}

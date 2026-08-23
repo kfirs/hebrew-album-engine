@@ -87,7 +87,7 @@ export function AlbumEngine({
  * one. Anything carrying only one of the two is left as a single page.
  */
 function splitGreeting(page: PageConfig): AlbumSlide[] {
-  const hasText = page.text.trim().length > 0;
+  const hasText = hasWords(page.html);
   const hasPhoto = Boolean(page.imageUrl?.trim());
 
   if (!hasText || !hasPhoto) {
@@ -98,6 +98,15 @@ function splitGreeting(page: PageConfig): AlbumSlide[] {
     { kind: "page", key: `${page.id}-text`, page, part: "text" },
     { kind: "page", key: `${page.id}-photo`, page, part: "photo" },
   ];
+}
+
+/**
+ * Whether a greeting says anything, ignoring its markup. An editor leaves an
+ * empty paragraph behind when the last word is deleted, and that must not count
+ * as a wish worth splitting a photo away from.
+ */
+function hasWords(html: string): boolean {
+  return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim().length > 0;
 }
 
 function variantClass(variant: ViewVariant): string {

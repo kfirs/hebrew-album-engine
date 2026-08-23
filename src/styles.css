@@ -108,13 +108,55 @@
 /* `--ae-fit` is 1 unless useFitText had to shrink an over-long greeting. It
    lives on the body so the wish and its signature scale together. */
 .ae-page__text {
-  margin: 0;
   direction: rtl;
   font-size: calc(1em * var(--ae-fit, 1));
   line-height: 1.75;
-  white-space: pre-wrap;
   overflow-wrap: anywhere;
   text-wrap: pretty;
+}
+
+/* The greeting is authored markup, so the blocks inside it are styled here
+   rather than by the component. Paragraphs are spaced by gaps between them
+   only: a leading or trailing margin would read as the page being off-centre. */
+.ae-page__text > :first-child {
+  margin-block-start: 0;
+}
+
+.ae-page__text > :last-child {
+  margin-block-end: 0;
+}
+
+.ae-page__text p {
+  margin-block: 0.6em;
+}
+
+/* An empty paragraph is how the editor represents a deliberate blank line, and
+   it collapses to nothing without a height of its own. */
+.ae-page__text p:empty::before {
+  content: "";
+  display: inline-block;
+}
+
+/* Markers are set explicitly because the engine has to survive a host page's
+   CSS reset — Tailwind's preflight, among others, strips list styling — and a
+   bulleted list that renders without bullets is just a set of short lines. */
+.ae-page__text ul,
+.ae-page__text ol {
+  margin-block: 0.6em;
+  padding-inline-start: 1.4em;
+  list-style-position: outside;
+}
+
+.ae-page__text ul {
+  list-style-type: disc;
+}
+
+.ae-page__text ol {
+  list-style-type: decimal;
+}
+
+.ae-page__text li {
+  margin-block: 0.25em;
 }
 
 .ae-page__author {
