@@ -39,12 +39,14 @@ export function CoverWrapper({ album, face }: CoverWrapperProps) {
   const bleedUrl = isPhotoFull ? heroUrl : null;
   const insetUrl = isPhotoFull ? null : heroUrl;
 
-  // A photo bleed and the foil ground both dictate their own contrast, so the
-  // owner's text colour only applies to the templates that sit on a light page.
-  const surface: CSSProperties = {
-    ...backgroundStyle(bleedUrl ?? album.globalBackground),
-  };
-  if (!bleedUrl && style !== "GOLD_FOIL") {
+  // A photo bleed and the foil ground each dictate their own surface, so the
+  // owner's background and text colour only apply to the templates that sit on
+  // the album's own backdrop.
+  const isFoil = style === "GOLD_FOIL";
+  const surface: CSSProperties = isFoil
+    ? {}
+    : backgroundStyle(bleedUrl ?? album.globalBackground);
+  if (!bleedUrl && !isFoil) {
     surface.color = album.coverTextColor || "#1E3A8A";
   }
 
