@@ -112,8 +112,15 @@ export interface LayoutViewProps {
   onPageChange?: (index: number) => void;
 }
 
+/**
+ * Which half of a greeting a slide shows. A greeting carrying both a photo and
+ * a wish is split across two pages so neither has to be squeezed; greetings
+ * with only one of the two stay on a single page and carry no part.
+ */
+export type GreetingPart = "text" | "photo";
+
 export type AlbumSlide =
   | { kind: "front-cover"; key: string }
   | { kind: "back-cover"; key: string }
-  | { kind: "page"; key: string; page: PageConfig };
+  | { kind: "page"; key: string; page: PageConfig; part?: GreetingPart };
 // <editor-fold defaultstate="collapsed" desc="AI Generated Code - End">

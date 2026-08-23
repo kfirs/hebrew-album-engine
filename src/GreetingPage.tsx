@@ -4,11 +4,16 @@
 // </editor-fold>
 import type { CSSProperties } from "react";
 import { BackgroundOrchestrator } from "./BackgroundOrchestrator";
-import type { AlbumConfig, PageConfig } from "./types";
+import type { AlbumConfig, GreetingPart, PageConfig } from "./types";
 
 export interface GreetingPageProps {
   album: AlbumConfig;
   page: PageConfig;
+  /**
+   * Renders one half of a greeting that was split across two pages. Omit it to
+   * render whatever the greeting has, which is what single-page greetings want.
+   */
+  part?: GreetingPart;
 }
 
 /**
@@ -16,7 +21,7 @@ export interface GreetingPageProps {
  * Typography resolves page override → album default → engine fallback, so an
  * album-wide choice reaches every greeting that has not asked for its own.
  */
-export function GreetingPage({ album, page }: GreetingPageProps) {
+export function GreetingPage({ album, page, part }: GreetingPageProps) {
   const textStyle: CSSProperties = {
     fontFamily: page.fontFamily || album.defaultFontFamily || "Rubik",
     fontSize: page.fontSize || album.defaultFontSize || "18px",
@@ -26,34 +31,42 @@ export function GreetingPage({ album, page }: GreetingPageProps) {
       "right") as CSSProperties["textAlign"],
   };
 
+  // The signature belongs with the words, so a photo-only half carries neither.
+  const photo = part === "text" ? null : page.imageUrl;
+  const showText = part !== "photo";
+
   return (
     <BackgroundOrchestrator
       global={album.globalBackground}
       override={page.backgroundConfig}
-      className="ae-page"
+      className={["ae-page", part ? `ae-page--${part}` : null]
+        .filter(Boolean)
+        .join(" ")}
     >
-      {page.imageUrl ? (
+      {photo ? (
         <figure className="ae-page__media">
-          <img src={page.imageUrl} alt="" loading="lazy" />
+          <img src={photo} alt="" loading="lazy" />
         </figure>
       ) : null}
-      <div className="ae-page__body">
-        <p className="ae-page__text" style={textStyle}>
-          {page.text}
-        </p>
-        {page.authorName?.trim() ? (
-          <p
-            className="ae-page__author"
-            style={{
-              fontFamily: textStyle.fontFamily,
-              color: textStyle.color,
-              textAlign: textStyle.textAlign,
-            }}
-          >
-            {page.authorName}
+      {showText ? (
+        <div className="ae-page__body">
+          <p className="ae-page__text" style={textStyle}>
+            {page.text}
           </p>
-        ) : null}
-      </div>
+          {page.authorName?.trim() ? (
+            <p
+              className="ae-page__author"
+              style={{
+                fontFamily: textStyle.fontFamily,
+                color: textStyle.color,
+                textAlign: textStyle.textAlign,
+              }}
+            >
+              {page.authorName}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
     </BackgroundOrchestrator>
   );
 }

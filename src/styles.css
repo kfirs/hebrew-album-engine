@@ -121,6 +121,16 @@
   content: "— ";
 }
 
+/* A photo with the page to itself can sit closer to the edges, and a long wish
+   that no longer shares the page is free to scroll rather than overflow. */
+.ae-page--photo > .ae-bg__content {
+  padding: clamp(10px, 2.5%, 28px);
+}
+
+.ae-page--text > .ae-bg__content {
+  overflow-y: auto;
+}
+
 /* ---------- Cover wrapper ---------- */
 
 .ae-cover {
@@ -603,6 +613,16 @@
 
 .ae-page__author {
   animation: ae-rise 0.5s cubic-bezier(0.22, 0.61, 0.36, 1) 0.18s both;
+}
+
+/* On a text-only page there is no photo to settle first, so the stagger starts
+   at the words instead of holding them back for something that never arrives. */
+.ae-page--text .ae-page__text {
+  animation-delay: 0s;
+}
+
+.ae-page--text .ae-page__author {
+  animation-delay: 0.09s;
 }
 
 .ae-cover__hero,

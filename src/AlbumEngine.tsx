@@ -12,6 +12,7 @@ import type {
   AlbumEngineProps,
   AlbumSlide,
   LayoutViewProps,
+  PageConfig,
   ViewVariant,
 } from "./types";
 
@@ -39,11 +40,7 @@ export function AlbumEngine({
     const ordered = [...albumData.pages].sort((a, b) => a.order - b.order);
     const compiled: AlbumSlide[] = [
       { kind: "front-cover", key: `${albumData.id}-front` },
-      ...ordered.map<AlbumSlide>((page) => ({
-        kind: "page",
-        key: page.id,
-        page,
-      })),
+      ...ordered.flatMap<AlbumSlide>(splitGreeting),
     ];
     if (showBackCover) {
       compiled.push({ kind: "back-cover", key: `${albumData.id}-back` });
@@ -82,6 +79,25 @@ export function AlbumEngine({
       </BackgroundOrchestrator>
     </RTLCanvas>
   );
+}
+
+/**
+ * A greeting that has both a photo and a wish becomes two pages — the words
+ * first, then the picture — because a single page has to shrink both to fit
+ * one. Anything carrying only one of the two is left as a single page.
+ */
+function splitGreeting(page: PageConfig): AlbumSlide[] {
+  const hasText = page.text.trim().length > 0;
+  const hasPhoto = Boolean(page.imageUrl?.trim());
+
+  if (!hasText || !hasPhoto) {
+    return [{ kind: "page", key: page.id, page }];
+  }
+
+  return [
+    { kind: "page", key: `${page.id}-text`, page, part: "text" },
+    { kind: "page", key: `${page.id}-photo`, page, part: "photo" },
+  ];
 }
 
 function variantClass(variant: ViewVariant): string {

@@ -28,7 +28,7 @@ export function GridView({ album, slides }: LayoutViewProps) {
         {pages.map((slide) => (
           <article key={slide.key} className="ae-grid__item">
             {slide.kind === "page" ? (
-              <GreetingPage album={album} page={slide.page} />
+              <GreetingPage album={album} page={slide.page} part={slide.part} />
             ) : null}
           </article>
         ))}

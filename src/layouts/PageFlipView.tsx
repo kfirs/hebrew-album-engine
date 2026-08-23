@@ -62,7 +62,7 @@ export function PageFlipView({
       const root = createRoot(inner);
       root.render(
         slide.kind === "page" ? (
-          <GreetingPage album={album} page={slide.page} />
+          <GreetingPage album={album} page={slide.page} part={slide.part} />
         ) : (
           <CoverWrapper
             album={album}

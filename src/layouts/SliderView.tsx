@@ -52,7 +52,7 @@ export function SliderView({
         {slides.map((slide) => (
           <SwiperSlide key={slide.key} className="ae-slider__slide">
             {slide.kind === "page" ? (
-              <GreetingPage album={album} page={slide.page} />
+              <GreetingPage album={album} page={slide.page} part={slide.part} />
             ) : (
               <CoverWrapper
                 album={album}
