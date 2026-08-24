@@ -42,6 +42,8 @@ export function PageFlipView({
   const hostRef = useRef<HTMLDivElement | null>(null);
   const flipRef = useRef<PageFlip | null>(null);
   const [current, setCurrent] = useState(0);
+  /** Mirrors `current` for callbacks that must not be rebuilt on every turn. */
+  const currentRef = useRef(0);
   const [total, setTotal] = useState(slides.length);
   const [interacted, setInteracted] = useState(false);
 
@@ -55,6 +57,25 @@ export function PageFlipView({
 
   const changeRef = useRef(onPageChange);
   changeRef.current = onPageChange;
+
+  /**
+   * Which greeting the reader is on, remembered by key rather than by index so
+   * it survives the book being rebuilt underneath them. Indexes do not survive:
+   * crossing the spread threshold adds or removes spacer leaves, so the same
+   * greeting sits at a different number on either side of it.
+   */
+  const anchorRef = useRef<string | null>(null);
+
+  /**
+   * Whether a turn was asked for.
+   *
+   * StPageFlip re-emits `flip` when the window resizes, reporting page zero
+   * while continuing to render — and to turn from — the spread the reader is
+   * actually on. Taken at face value it sends the counter back to 1 mid-album.
+   * Every turn in this layout is initiated here, so an event nobody asked for
+   * is the library talking to itself and can be dropped.
+   */
+  const turnRequested = useRef(false);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -105,12 +126,29 @@ export function PageFlipView({
     book.loadFromHTML(pageElements);
     flipRef.current = book;
     setTotal(book.getPageCount());
-    setCurrent(book.getCurrentPageIndex());
+
+    // A rebuild starts at the cover, which would throw a reader back to the
+    // beginning for nothing more than turning their phone. turnToPage is the
+    // silent one — flip() would animate the whole way there.
+    const resumeAt = anchorRef.current
+      ? leaves.findIndex((slide) => slide.key === anchorRef.current)
+      : -1;
+    // turnToPage does not settle its index before returning, so asking the book
+    // where it is would answer with the cover it has just left.
+    const startAt = resumeAt > 0 ? resumeAt : book.getCurrentPageIndex();
+    if (resumeAt > 0) book.turnToPage(resumeAt);
+    setCurrent(startAt);
+    currentRef.current = startAt;
 
     book.on("flip", (event) => {
+      if (!turnRequested.current) return;
+      turnRequested.current = false;
+
       const index = Number(event.data);
       if (Number.isNaN(index)) return;
       setCurrent(index);
+      currentRef.current = index;
+      anchorRef.current = anchorAt(leaves, index);
       changeRef.current?.(index);
     });
 
@@ -131,16 +169,26 @@ export function PageFlipView({
   const goNext = useCallback(() => {
     const book = flipRef.current;
     if (!book) return;
-    const last = book.getPageCount() - 1;
-    if (book.getCurrentPageIndex() >= last) {
-      if (loop) book.turnToPage(0);
+    // Against this component's own index, not the library's: that one reads
+    // zero after a resize, which would stop an album looping at its last page.
+    if (currentRef.current >= book.getPageCount() - 1) {
+      if (!loop) return;
+      book.turnToPage(0);
+      setCurrent(0);
+      currentRef.current = 0;
+      anchorRef.current = anchorAt(leaves, 0);
+      changeRef.current?.(0);
       return;
     }
+    turnRequested.current = true;
     book.flipNext();
-  }, [loop]);
+  }, [leaves, loop]);
 
   const goPrev = useCallback(() => {
-    flipRef.current?.flipPrev();
+    const book = flipRef.current;
+    if (!book) return;
+    turnRequested.current = true;
+    book.flipPrev();
   }, []);
 
   useAutoplay({
@@ -278,6 +326,21 @@ function renderLeaf(album: LayoutViewProps["album"], slide: AlbumSlide) {
       face={slide.kind === "front-cover" ? "front" : "back"}
     />
   );
+}
+
+/**
+ * The slide to come back to after the book is rebuilt.
+ *
+ * Spacers are skipped: they exist only while two leaves are shown, so anchoring
+ * to one and then narrowing the window would leave nothing to return to. The
+ * search walks backwards, since a spacer is inserted ahead of the greeting it
+ * was added for.
+ */
+function anchorAt(leaves: AlbumSlide[], index: number): string | null {
+  for (let i = Math.min(index, leaves.length - 1); i >= 0; i -= 1) {
+    if (leaves[i].kind !== "blank") return leaves[i].key;
+  }
+  return null;
 }
 
 /** Covers are rigid boards; everything inside the book is a soft sheet. */

@@ -131,6 +131,8 @@ lands on the same spread instead of straddling a turn.
   Because the mirror inverts the library's own pointer maths, turns are handled
   here instead: tap zones, the arrow keys, the controls, and a swipe on touch
   (rightwards to advance, as though pulling the left leaf across the spine).
+  Resizing keeps the reader where they were, including across the width at
+  which the book stops showing two leaves and has to be rebuilt.
 - `SLIDER` — a Swiper carousel; autoplay uses Swiper's own Autoplay module.
 - `GRID` — a responsive mosaic of every greeting, bracketed by the covers.
   Presentation flags do not apply.

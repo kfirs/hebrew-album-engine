@@ -1,6 +1,6 @@
 {
   "name": "@sassoninc/album-engine-core",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Generic, RTL-first React rendering engine for digital congratulatory albums (page-flip, slider, grid).",
   "license": "MIT",
   "author": "Kfir Sasson <kfir.sasson@gmail.com>",
