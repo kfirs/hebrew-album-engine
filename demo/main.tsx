@@ -4,7 +4,13 @@
 // </editor-fold>
 import { StrictMode, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { AlbumEngine, LAYOUT_TYPES, type LayoutType } from "../src";
+import {
+  AlbumEngine,
+  COVER_STYLE_TYPES,
+  LAYOUT_TYPES,
+  type CoverStyleType,
+  type LayoutType,
+} from "../src";
 import "../src/styles.css";
 import { demoAlbum } from "./album";
 import "./demo.css";
@@ -36,10 +42,12 @@ function repeatPages(album: typeof demoAlbum, times: number) {
 }
 
 function Demo() {
+  const params = new URLSearchParams(window.location.search);
   const [layoutType, setLayoutType] = useState<LayoutType>("PAGE_FLIP");
-  const repeat = Number(
-    new URLSearchParams(window.location.search).get("repeat") ?? 1,
+  const [style, setStyle] = useState<CoverStyleType>(
+    (params.get("style") as CoverStyleType) ?? demoAlbum.coverStyle,
   );
+  const repeat = Number(params.get("repeat") ?? 1);
   const album = repeatPages(demoAlbum, Number.isFinite(repeat) ? repeat : 1);
 
   return (
@@ -59,12 +67,29 @@ function Demo() {
             </button>
           ))}
         </div>
+        <select
+          className="demo__styles"
+          aria-label="Style"
+          value={style}
+          onChange={(event) => setStyle(event.target.value as CoverStyleType)}
+        >
+          {COVER_STYLE_TYPES.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
       </header>
 
       <main className="demo__stage">
         <AlbumEngine
-          key={layoutType}
-          albumData={{ ...album, layoutType }}
+          key={`${layoutType}-${style}`}
+          albumData={{
+            ...album,
+            layoutType,
+            coverStyle: style,
+            syncPageStyleWithCover: true,
+          }}
           viewVariant="full"
         />
       </main>

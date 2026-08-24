@@ -8,6 +8,12 @@
   --ae-ink: #1f2937;
   --ae-muted: rgba(31, 41, 55, 0.62);
 
+  /* The printed-stationery templates, which share one stock and one foil. */
+  --ae-paper: #e6dcd4;
+  --ae-paper-ink: #4d4639;
+  --ae-paper-gold: #b8975a;
+  --ae-paper-gold-deep: #986c1a;
+
   direction: rtl;
   text-align: right;
   position: relative;
@@ -86,6 +92,22 @@
   justify-content: center;
 }
 
+/* Wraps the print so it can be opened full size. Sized like the image it holds
+   so the figure still centres one box, not a button padded around a picture. */
+.ae-page__zoom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  max-height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: zoom-in;
+}
+
 .ae-page__media img {
   max-width: 100%;
   max-height: 100%;
@@ -157,6 +179,37 @@
 
 .ae-page__text li {
   margin-block: 0.25em;
+}
+
+/* A break between two parts of a greeting, drawn as stationery would: a hairline
+   parted around a small heart rather than the browser's engraved bar. */
+.ae-page__text hr {
+  position: relative;
+  margin-block: 1.15em;
+  border: 0;
+  block-size: 1.1em;
+  /* The rule is parted rather than covered: a heart painted over a solid line
+     would need to know the colour of the paper underneath it, and every page
+     style brings a different one. */
+  background:
+    linear-gradient(
+        to right,
+        currentColor 0 calc(50% - 0.85em),
+        transparent calc(50% - 0.85em) calc(50% + 0.85em),
+        currentColor calc(50% + 0.85em) 100%
+      )
+      center / 100% 1px no-repeat;
+  opacity: 0.38;
+}
+
+.ae-page__text hr::after {
+  content: "♡";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.95em;
+  line-height: 1;
 }
 
 .ae-page__author {
@@ -264,6 +317,52 @@
     0 1px 2px rgba(0, 0, 0, 0.5),
     0 14px 36px rgba(0, 0, 0, 0.55),
     0 0 0 1px rgba(230, 198, 100, 0.35) inset;
+}
+
+/* HERITAGE_GOLD: printed cream stock, a double gold keyline at the trim edge
+   and a foil spray in every corner. Ink is warm near-black, set on the page so
+   a greeting that chose no colour prints as the stationery intends. */
+.ae-page--style-heritage-gold {
+  color: var(--ae-paper-ink);
+}
+
+.ae-page--style-heritage-gold .ae-page__ornament {
+  background-color: var(--ae-paper);
+  background-image: radial-gradient(
+    ellipse at 50% 16%,
+    rgba(255, 253, 250, 0.62),
+    rgba(199, 181, 163, 0.32)
+  );
+}
+
+.ae-page--style-heritage-gold .ae-page__ornament::before {
+  inset: clamp(5px, 1.4%, 13px);
+  border: 2px solid var(--ae-paper-gold);
+  outline: 1px solid rgba(184, 151, 90, 0.7);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+/* ALBUM_CORNERS: the same stock in a rounded gold frame, with the paper
+   triangles a photograph used to be slotted into. */
+.ae-page--style-album-corners {
+  color: var(--ae-paper-ink);
+}
+
+.ae-page--style-album-corners .ae-page__ornament {
+  background-color: var(--ae-paper);
+  background-image: radial-gradient(
+    ellipse at 50% 16%,
+    rgba(255, 253, 250, 0.62),
+    rgba(199, 181, 163, 0.32)
+  );
+}
+
+.ae-page--style-album-corners .ae-page__ornament::before {
+  inset: clamp(5px, 1.4%, 13px);
+  border: 3px solid var(--ae-paper-gold);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgba(184, 151, 90, 0.34);
 }
 
 /* A page given its own backdrop asked for that backdrop to be seen, so the
@@ -503,6 +602,122 @@
   opacity: 1;
 }
 
+/* HERITAGE_GOLD and ALBUM_CORNERS: one printed stock, two bindings. Serif
+   throughout, because the stock is meant to read as pressed rather than set. */
+.ae-cover--heritage-gold,
+.ae-cover--album-corners {
+  background-color: var(--ae-paper);
+  background-image: radial-gradient(
+    ellipse at 50% 20%,
+    rgba(255, 253, 250, 0.7),
+    rgba(199, 181, 163, 0.34)
+  );
+  color: var(--ae-paper-ink);
+}
+
+.ae-cover--heritage-gold .ae-cover__title,
+.ae-cover--album-corners .ae-cover__title {
+  font-family: "Frank Ruhl Libre", "David Libre", Georgia, serif;
+  letter-spacing: 0.01em;
+}
+
+.ae-cover--heritage-gold .ae-cover__subtitle,
+.ae-cover--album-corners .ae-cover__subtitle {
+  color: rgba(77, 70, 57, 0.76);
+  letter-spacing: 0.12em;
+}
+
+.ae-cover--heritage-gold .ae-cover__rule,
+.ae-cover--album-corners .ae-cover__rule {
+  width: 130px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ae-paper-gold) 24%,
+    var(--ae-paper-gold-deep) 50%,
+    var(--ae-paper-gold) 76%,
+    transparent
+  );
+  opacity: 1;
+}
+
+.ae-cover--heritage-gold .ae-cover__ornament {
+  margin: 14px;
+  border: 2px solid var(--ae-paper-gold);
+  outline: 1px solid rgba(184, 151, 90, 0.7);
+  outline-offset: 3px;
+  border-radius: 1px;
+}
+
+.ae-cover--album-corners .ae-cover__ornament {
+  margin: 14px;
+  border: 3px solid var(--ae-paper-gold);
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px rgba(184, 151, 90, 0.34);
+}
+
+.ae-fan {
+  position: absolute;
+  inset: clamp(16px, 3.4%, 34px);
+  pointer-events: none;
+  color: var(--ae-paper-gold);
+}
+
+.ae-fan__corner {
+  position: absolute;
+  width: clamp(26px, 5.5vw, 54px);
+  height: clamp(26px, 5.5vw, 54px);
+}
+
+.ae-slots {
+  position: absolute;
+  inset: clamp(14px, 3%, 30px);
+  pointer-events: none;
+}
+
+/* The cover's frame is heavier and further in than a page's, and a slot laid
+   over the rule reads as a nick in it rather than a fold of paper. */
+.ae-cover .ae-slots {
+  inset: clamp(26px, 5.5%, 48px);
+}
+
+/* A slot is the triangle of paper folded over the print's corner, so it points
+   inwards from the corner it sits in. */
+.ae-slots__corner {
+  position: absolute;
+  width: clamp(10px, 2.2vw, 20px);
+  height: clamp(10px, 2.2vw, 20px);
+  background: rgba(184, 149, 90, 0.72);
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.ae-fan__corner--tl,
+.ae-slots__corner--tl {
+  top: 0;
+  left: 0;
+}
+
+.ae-fan__corner--tr,
+.ae-slots__corner--tr {
+  top: 0;
+  right: 0;
+  transform: scaleX(-1);
+}
+
+.ae-fan__corner--br,
+.ae-slots__corner--br {
+  bottom: 0;
+  right: 0;
+  transform: scale(-1);
+}
+
+.ae-fan__corner--bl,
+.ae-slots__corner--bl {
+  bottom: 0;
+  left: 0;
+  transform: scaleY(-1);
+}
+
 .ae-gold {
   position: absolute;
   inset: 26px;
@@ -660,8 +875,10 @@
   align-items: center;
   justify-content: center;
   /* Horizontal drags belong to the page turn, so the browser must not claim
-     them for scrolling or for its own back-swipe. Vertical is left alone. */
-  touch-action: pan-y;
+     them for scrolling or for its own back-swipe. Vertical is left alone, and
+     so is pinching: on a phone a greeting is small, and magnifying it is the
+     browser's job to do well. Turns are suppressed while zoomed in. */
+  touch-action: pan-y pinch-zoom;
 }
 
 /*
@@ -678,6 +895,18 @@
    mirror lives on the wrapper above it, which the library never touches. */
 .ae-flip__book {
   transform: scaleX(-1);
+}
+
+/*
+ * StPageFlip gives itself height by padding a wrapper out to the page ratio,
+ * assuming its container has none of its own. This one does — the stage is a
+ * flex child that already fills the space. The padding then hangs an invisible
+ * slab off the bottom of the book, over the controls, and the buttons stop
+ * answering because every click lands on the slab instead.
+ */
+.ae-flip__book .stf__wrapper {
+  padding-bottom: 0 !important;
+  height: 100%;
 }
 
 .ae-flip__inner {
@@ -731,6 +960,53 @@
   color: var(--ae-muted);
   min-width: 66px;
   text-align: center;
+}
+
+/* ---------- Photo lightbox ---------- */
+
+.ae-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  display: grid;
+  place-items: center;
+  padding: clamp(8px, 3vw, 36px);
+  background: rgba(9, 9, 14, 0.94);
+  /* Pinching goes further than the overlay already does, and a zoomed photo
+     needs dragging around; both are the browser's to handle. */
+  touch-action: pinch-zoom;
+  overscroll-behavior: contain;
+  cursor: zoom-out;
+  animation: ae-lightbox-in 0.18s ease-out;
+}
+
+.ae-lightbox__img {
+  max-inline-size: 100%;
+  max-block-size: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+}
+
+.ae-lightbox__close {
+  position: fixed;
+  inset-block-start: max(12px, env(safe-area-inset-top));
+  inset-inline-end: max(12px, env(safe-area-inset-right));
+  inline-size: 2.75rem;
+  block-size: 2.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@keyframes ae-lightbox-in {
+  from {
+    opacity: 0;
+  }
 }
 
 /* ---------- Motion ---------- */

@@ -5,8 +5,8 @@
 import type { CSSProperties } from "react";
 import type { AlbumConfig, CoverStyleType } from "../types";
 import { backgroundStyle } from "../utils/background";
+import { CornerOrnament } from "./CornerOrnament";
 import { FloralFrame } from "./FloralFrame";
-import { GoldCorners } from "./GoldCorners";
 
 export interface CoverWrapperProps {
   album: AlbumConfig;
@@ -15,6 +15,13 @@ export interface CoverWrapperProps {
 
 const BACK_COVER_TITLE = "בהוקרה ובאהבה";
 const BACK_COVER_SUBTITLE = "תודה שהייתם חלק מהאלבום הזה";
+
+/** Templates that bring their own paper and ink and ignore the album's. */
+const SELF_DRESSED: CoverStyleType[] = [
+  "GOLD_FOIL",
+  "HERITAGE_GOLD",
+  "ALBUM_CORNERS",
+];
 
 /**
  * Intercepts index point zero (and the mirrored closing index) during
@@ -39,14 +46,14 @@ export function CoverWrapper({ album, face }: CoverWrapperProps) {
   const bleedUrl = isPhotoFull ? heroUrl : null;
   const insetUrl = isPhotoFull ? null : heroUrl;
 
-  // A photo bleed and the foil ground each dictate their own surface, so the
-  // owner's background and text colour only apply to the templates that sit on
-  // the album's own backdrop.
-  const isFoil = style === "GOLD_FOIL";
-  const surface: CSSProperties = isFoil
+  // A photo bleed, the foil ground and the two printed-paper templates each
+  // dictate their own surface, so the owner's background and text colour only
+  // apply to the templates that sit on the album's own backdrop.
+  const ownsSurface = SELF_DRESSED.includes(style);
+  const surface: CSSProperties = ownsSurface
     ? {}
     : backgroundStyle(bleedUrl ?? album.globalBackground);
-  if (!bleedUrl && !isFoil) {
+  if (!bleedUrl && !ownsSurface) {
     surface.color = album.coverTextColor || "#1E3A8A";
   }
 
@@ -58,7 +65,7 @@ export function CoverWrapper({ album, face }: CoverWrapperProps) {
       style={surface}
     >
       <div className="ae-cover__ornament" aria-hidden="true" />
-      {style === "GOLD_FOIL" ? <GoldCorners /> : null}
+      <CornerOrnament style={style} surface="cover" />
 
       {insetUrl ? (
         <div className="ae-cover__hero">

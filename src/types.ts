@@ -13,7 +13,9 @@ export type CoverStyleType =
   | "MODERN_BORDER"
   | "FLORAL_FRAME"
   | "PHOTO_FULL"
-  | "GOLD_FOIL";
+  | "GOLD_FOIL"
+  | "HERITAGE_GOLD"
+  | "ALBUM_CORNERS";
 
 export const LAYOUT_TYPES: readonly LayoutType[] = [
   "PAGE_FLIP",
@@ -28,6 +30,8 @@ export const COVER_STYLE_TYPES: readonly CoverStyleType[] = [
   "FLORAL_FRAME",
   "PHOTO_FULL",
   "GOLD_FOIL",
+  "HERITAGE_GOLD",
+  "ALBUM_CORNERS",
 ];
 
 /**
@@ -43,6 +47,8 @@ export const PAGE_STYLE_TYPES: readonly PageStyleType[] = [
   "MODERN_BORDER",
   "FLORAL_FRAME",
   "GOLD_FOIL",
+  "HERITAGE_GOLD",
+  "ALBUM_CORNERS",
 ];
 
 /** A single greeting page. Mirrors the `Page` relational model. */

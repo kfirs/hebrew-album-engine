@@ -139,9 +139,22 @@ lands on the same spread instead of straddling a turn.
 
 ## Cover templates
 
-`MINIMAL`, `VINTAGE`, `MODERN_BORDER` and `FLORAL_FRAME`. The cover wrapper
-intercepts index zero and renders the selected template instead of a normal body
-slot; `FLORAL_FRAME` flanks the title with two mirrored SVG vine borders.
+`MINIMAL`, `VINTAGE`, `MODERN_BORDER`, `FLORAL_FRAME`, `PHOTO_FULL`,
+`GOLD_FOIL`, `HERITAGE_GOLD` and `ALBUM_CORNERS`. The cover wrapper intercepts
+index zero and renders the selected template instead of a normal body slot;
+`FLORAL_FRAME` flanks the title with two mirrored SVG vine borders.
+
+Every template except `PHOTO_FULL` — which has a hero photo to bleed and a page
+has nothing to bleed — can also dress the greeting pages, either by setting
+`pageStyle` or by setting `syncPageStyleWithCover` so the whole album reads as
+one bound object.
+
+## Reading on a phone
+
+Photographs open full-screen when tapped, since a print sharing a page with a
+greeting is too small to make out faces in. Pinching magnifies the page itself,
+and while the reader is zoomed in a one-finger drag pans rather than turning
+the leaf out from under them.
 
 ## Exports
 

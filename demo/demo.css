@@ -68,6 +68,16 @@ body {
   box-shadow: 0 1px 3px rgb(76 29 90 / 0.16);
 }
 
+.demo__styles {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #e4d9ef;
+  border-radius: 0.6rem;
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.8rem;
+  color: #6b5b78;
+}
+
 /* The engine sizes itself to its container, so the demo has to give it one
    with a real height rather than letting it collapse. `min-block-size: 0`
    overrides the flex default of `auto`, which would let the book push the

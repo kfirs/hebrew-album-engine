@@ -3,7 +3,8 @@
 // Generated on: 2026-08-23 23:10:00
 // </editor-fold>
 import { BackgroundOrchestrator } from "./BackgroundOrchestrator";
-import { pageStyleClass } from "./utils/pageStyle";
+import { CornerOrnament } from "./covers/CornerOrnament";
+import { pageStyleClass, resolvePageStyle } from "./utils/pageStyle";
 import type { AlbumConfig } from "./types";
 
 export interface BlankPageProps {
@@ -19,7 +20,11 @@ export function BlankPage({ album }: BlankPageProps) {
   return (
     <BackgroundOrchestrator
       global={album.globalBackground}
-      ornament={<div className="ae-page__ornament" aria-hidden="true" />}
+      ornament={
+        <div className="ae-page__ornament" aria-hidden="true">
+          <CornerOrnament style={resolvePageStyle(album)} surface="page" />
+        </div>
+      }
       className={`ae-page ae-page--blank ${pageStyleClass(album, false)}`}
     >
       <span aria-hidden="true" />

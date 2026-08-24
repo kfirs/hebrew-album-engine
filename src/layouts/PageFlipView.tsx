@@ -223,37 +223,44 @@ export function PageFlipView({
 
   const swipe = useSwipe(goNext, goPrev);
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    // In RTL the left arrow advances, mirroring the physical turn direction.
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      goNext();
-    } else if (event.key === "ArrowRight") {
-      event.preventDefault();
-      goPrev();
-    }
-  };
+  // On the window rather than on the book: nothing focuses the book on its own,
+  // and a reader pressing an arrow key has not thought about which element the
+  // browser considers current.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.altKey || event.ctrlKey || event.metaKey) return;
+      if (isTyping(event.target)) return;
+
+      // In RTL the left arrow advances, mirroring the physical turn direction.
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        goNext();
+      } else if (event.key === "ArrowRight") {
+        event.preventDefault();
+        goPrev();
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [goNext, goPrev]);
 
   return (
-    <div
-      className="ae-flip"
-      tabIndex={0}
-      role="group"
-      aria-label={album.title}
-      onKeyDown={handleKeyDown}
-    >
+    <div className="ae-flip" role="group" aria-label={album.title}>
       <div className="ae-flip__stage" {...swipe}>
         <div ref={hostRef} className="ae-flip__book" />
+        {/* Zoomed in, a tap is aiming at the page rather than at the edge of
+            the book; the buttons below still turn it on purpose. */}
         <button
           type="button"
           className="ae-flip__zone ae-flip__zone--next"
-          onClick={goNext}
+          onClick={() => !isZoomed() && goNext()}
           aria-label="הדף הבא"
         />
         <button
           type="button"
           className="ae-flip__zone ae-flip__zone--prev"
-          onClick={goPrev}
+          onClick={() => !isZoomed() && goPrev()}
           aria-label="הדף הקודם"
         />
       </div>
@@ -282,6 +289,19 @@ export function PageFlipView({
       ) : null}
     </div>
   );
+}
+
+/** Whether the reader has pinched into the page. */
+function isZoomed(): boolean {
+  const scale = window.visualViewport?.scale ?? 1;
+  return scale > 1.05;
+}
+
+/** Whether a key belongs to whatever the reader is writing in, not to the book. */
+function isTyping(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+  if (target.isContentEditable) return true;
+  return ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
 }
 
 /** The live settings object, which StPageFlip's typings leave off the class. */
@@ -318,6 +338,9 @@ function useSwipe(onNext: () => void, onPrev: () => void) {
       const start = from.current;
       from.current = null;
       if (!start || start.id !== event.pointerId) return;
+      // Zoomed in, a one-finger drag is the reader moving around the page they
+      // magnified. Turning it would throw away what they zoomed in to see.
+      if (isZoomed()) return;
 
       const dx = event.clientX - start.x;
       // A gesture that travelled further down than across was a scroll that
