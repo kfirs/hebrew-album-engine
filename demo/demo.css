@@ -1,0 +1,91 @@
+/* AI Generated Code - Start
+   Generated on: 2026-08-24 15:42:00 */
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Rubik, Heebo, system-ui, sans-serif;
+  background: #f6f2fb;
+  color: #3b2b45;
+}
+
+.demo {
+  display: flex;
+  flex-direction: column;
+  /* Fixed rather than minimum: the stage below claims the leftover space, and
+     it can only do that if there is a known total to take the leftover from. */
+  block-size: 100dvh;
+}
+
+.demo__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.9rem 1.25rem;
+  background: #ffffff;
+  border-block-end: 1px solid #ece4f5;
+}
+
+.demo__title {
+  margin: 0;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6b5b78;
+}
+
+.demo__layouts {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.2rem;
+  background: #f4eefb;
+  border-radius: 999px;
+}
+
+.demo__layout {
+  padding: 0.4rem 1rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font: inherit;
+  font-size: 0.85rem;
+  color: #6b5b78;
+  cursor: pointer;
+}
+
+.demo__layout[aria-pressed="true"] {
+  background: #ffffff;
+  color: #7c2d5a;
+  box-shadow: 0 1px 3px rgb(76 29 90 / 0.16);
+}
+
+/* The engine sizes itself to its container, so the demo has to give it one
+   with a real height rather than letting it collapse. `min-block-size: 0`
+   overrides the flex default of `auto`, which would let the book push the
+   stage taller than its share and scroll the page instead of fitting. */
+.demo__stage {
+  flex: 1;
+  min-block-size: 0;
+  padding: 1.5rem;
+}
+
+/* The book derives its height from the width it is given, so on a wide window
+   an unconstrained stage makes it taller than the room left for it and the
+   spread gets clipped. Capping the width keeps the whole book on screen — and
+   a centred book looks better than one stretched across a monitor. */
+.demo__stage > * {
+  block-size: 100%;
+  max-inline-size: 1000px;
+  margin-inline: auto;
+}
+
+/* AI Generated Code - End */

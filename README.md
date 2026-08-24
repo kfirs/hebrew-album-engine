@@ -1,12 +1,38 @@
-﻿# @sassoninc/album-engine-core
+# @sassoninc/album-engine-core
 
 RTL-first React rendering engine for digital congratulatory albums.
 
+[![npm](https://img.shields.io/npm/v/@sassoninc/album-engine-core.svg)](https://www.npmjs.com/package/@sassoninc/album-engine-core)
+[![npm downloads](https://img.shields.io/npm/dm/@sassoninc/album-engine-core.svg)](https://www.npmjs.com/package/@sassoninc/album-engine-core)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/@sassoninc/album-engine-core)](https://bundlephobia.com/package/@sassoninc/album-engine-core)
+[![licence](https://img.shields.io/npm/l/@sassoninc/album-engine-core.svg)](./LICENSE)
+[![types](https://img.shields.io/npm/types/@sassoninc/album-engine-core.svg)](./src/types.ts)
+
 Configuration JSON in, active React DOM out. The package has no dependency on
-any database, authentication strategy or hosting platform â€” it is generic,
+any database, authentication strategy or hosting platform — it is generic,
 functional and layout-driven, and every view is anchored inside an explicit
 right-to-left canvas so Hebrew renders without layout shifts or reversed
 alignments.
+
+<p align="center">
+  <img
+    src="https://raw.githubusercontent.com/kfirs/hebrew-album-engine/main/docs/media/page-turn.gif"
+    alt="A Hebrew album turning a page, opening from the right"
+    width="640"
+  />
+</p>
+
+A book that opens from the right and turns the way a Hebrew reader expects,
+with a greeting's photo and words kept on the same spread.
+
+## The three layouts
+
+| Book (`PAGE_FLIP`) | Slider (`SLIDER`) | Grid (`GRID`) |
+| --- | --- | --- |
+| [<img src="https://raw.githubusercontent.com/kfirs/hebrew-album-engine/main/docs/media/book.png" alt="Two facing pages: a photo on the left, a wish and its signature on the right" width="260">](docs/media/book.png) | [<img src="https://raw.githubusercontent.com/kfirs/hebrew-album-engine/main/docs/media/slider.png" alt="A single greeting on a slide, with a right-aligned bulleted list" width="260">](docs/media/slider.png) | [<img src="https://raw.githubusercontent.com/kfirs/hebrew-album-engine/main/docs/media/grid.png" alt="A mosaic of greeting cards, some with photos" width="260">](docs/media/grid.png) |
+
+Everything above is the [demo](#running-the-demo) in this repository, with
+invented greetings and drawn-in stand-ins for the photographs.
 
 ## Install
 
@@ -24,7 +50,7 @@ import "@sassoninc/album-engine-core/styles.css";
 
 const album: AlbumConfig = {
   id: "demo",
-  title: "×™×•× ×”×•×œ×“×ª ×©×ž×—",
+  title: "יום הולדת שמח",
   layoutType: "PAGE_FLIP",
   themeColor: "#fdf6ee",
   globalBackground: "linear-gradient(165deg, #fdf6ee 0%, #f3e8ff 100%)",
@@ -32,13 +58,13 @@ const album: AlbumConfig = {
   autoplaySpeed: 6000,
   loopPresentation: true,
   coverStyle: "FLORAL_FRAME",
-  coverSubtitle: "××œ×‘×•× ×‘×¨×›×•×ª",
+  coverSubtitle: "אלבום ברכות",
   coverTextColor: "#7c2d5a",
   pages: [
     {
       id: "p1",
       order: 0,
-      html: "<p>×ž×–×œ ×˜×•×‘! <strong>×©×ª×ž×™×“</strong> ×ª×ž×©×™×›×™ ×œ×”××™×¨.</p>",
+      html: "<p>מזל טוב! <strong>שתמיד</strong> תמשיכי להאיר.</p>",
       fontFamily: "Rubik",
       fontSize: "22px",
       textColor: "#1E3A8A",
@@ -61,8 +87,8 @@ A greeting is HTML, and the engine renders it without escaping. It is a
 rendering library and does no sanitising of its own: whatever puts a value in
 `html` is responsible for it being safe.
 
-If greetings can come from anyone but the album's owner â€” a public "add your
-wish" form, say â€” sanitise them **on the server, on the way in**, with something
+If greetings can come from anyone but the album's owner — a public "add your
+wish" form, say — sanitise them **on the server, on the way in**, with something
 like [`sanitize-html`](https://www.npmjs.com/package/sanitize-html). An
 allowlist enforced in the browser protects nobody, because the request can be
 made without the browser.
@@ -81,7 +107,7 @@ were written before it. Set one and it wins for that page alone.
 ## Pages that carry both a wish and a photo
 
 A greeting with text *and* an `imageUrl` is rendered as two slides rather than
-one crowded page â€” the words first, then the photo, with the signature staying
+one crowded page — the words first, then the photo, with the signature staying
 with the words. In the book layout, when the viewport is wide enough to show
 two leaves at once, a blank leaf is inserted where needed so a split pair always
 lands on the same spread instead of straddling a turn.
@@ -90,23 +116,23 @@ lands on the same spread instead of straddling a turn.
 
 | Prop | Type | Default | Purpose |
 | --- | --- | --- | --- |
-| `albumData` | `AlbumConfig` | â€” | Album configuration including its pages |
+| `albumData` | `AlbumConfig` | — | Album configuration including its pages |
 | `presentationMode` | `boolean` | `albumData.autoplayEnabled` | Overrides the album's autoplay flag |
 | `viewVariant` | `"public-minimal" \| "dashboard-preview" \| "full"` | `"full"` | Chrome density preset |
 | `showBackCover` | `boolean` | `true` | Appends a derived closing cover |
 | `showControls` | `boolean` | `true` | Set to `false` for kiosk playback |
-| `onPageChange` | `(index: number) => void` | â€” | Fired when the active slide changes |
-| `className` | `string` | â€” | Added to the RTL canvas |
+| `onPageChange` | `(index: number) => void` | — | Fired when the active slide changes |
+| `className` | `string` | — | Added to the RTL canvas |
 
 ## Layouts
 
-- `PAGE_FLIP` â€” a real page-turning book via StPageFlip, mirrored so it opens
+- `PAGE_FLIP` — a real page-turning book via StPageFlip, mirrored so it opens
   from the right. Autoplay is driven by an interval against the instance API.
   Because the mirror inverts the library's own pointer maths, turns are handled
   here instead: tap zones, the arrow keys, the controls, and a swipe on touch
   (rightwards to advance, as though pulling the left leaf across the spine).
-- `SLIDER` â€” a Swiper carousel; autoplay uses Swiper's own Autoplay module.
-- `GRID` â€” a responsive mosaic of every greeting, bracketed by the covers.
+- `SLIDER` — a Swiper carousel; autoplay uses Swiper's own Autoplay module.
+- `GRID` — a responsive mosaic of every greeting, bracketed by the covers.
   Presentation flags do not apply.
 
 ## Cover templates
@@ -121,6 +147,24 @@ Besides `AlbumEngine`, the individual building blocks are exported for custom
 compositions: `RTLCanvas`, `BackgroundOrchestrator`, `GreetingPage`,
 `CoverWrapper`, `PageFlipView`, `SliderView`, `GridView`, the `useAutoplay` hook
 and the `backgroundStyle` helper, along with all types.
+
+## Running the demo
+
+```bash
+npm install
+npm run demo        # http://localhost:5178
+```
+
+The demo in [`demo/`](demo) runs against `src/`, so a change shows up without a
+build step. It is also what produces the images above:
+
+```bash
+npm run demo:capture   # with the demo already running
+```
+
+## Contributing
+
+Bug reports and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licence
 
