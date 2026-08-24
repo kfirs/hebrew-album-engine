@@ -39,7 +39,8 @@ export function SliderView({
           autoplay
             ? {
                 delay: Math.max(500, autoplaySpeed),
-                disableOnInteraction: false,
+                // A reader who swipes has taken over from the presentation.
+                disableOnInteraction: true,
                 pauseOnMouseEnter: true,
               }
             : false

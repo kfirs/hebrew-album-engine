@@ -15,8 +15,32 @@ const LABELS: Record<LayoutType, string> = {
   GRID: "רשת",
 };
 
+/**
+ * `?repeat=4` stacks the sample greetings four times over. A handful of
+ * greetings is not a fair test of the book: several of the layout's decisions
+ * only bite once there are enough split greetings for the spacer leaves to
+ * accumulate.
+ */
+function repeatPages(album: typeof demoAlbum, times: number) {
+  if (times <= 1) return album;
+
+  const pages = Array.from({ length: times }, (_, round) =>
+    album.pages.map((page, i) => ({
+      ...page,
+      id: `${page.id}-r${round}`,
+      order: round * album.pages.length + i,
+    })),
+  ).flat();
+
+  return { ...album, pages };
+}
+
 function Demo() {
   const [layoutType, setLayoutType] = useState<LayoutType>("PAGE_FLIP");
+  const repeat = Number(
+    new URLSearchParams(window.location.search).get("repeat") ?? 1,
+  );
+  const album = repeatPages(demoAlbum, Number.isFinite(repeat) ? repeat : 1);
 
   return (
     <div className="demo">
@@ -40,7 +64,7 @@ function Demo() {
       <main className="demo__stage">
         <AlbumEngine
           key={layoutType}
-          albumData={{ ...demoAlbum, layoutType }}
+          albumData={{ ...album, layoutType }}
           viewVariant="full"
         />
       </main>

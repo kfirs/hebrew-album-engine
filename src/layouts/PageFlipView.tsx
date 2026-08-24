@@ -45,7 +45,7 @@ export function PageFlipView({
   /** Mirrors `current` for callbacks that must not be rebuilt on every turn. */
   const currentRef = useRef(0);
   const [total, setTotal] = useState(slides.length);
-  const [interacted, setInteracted] = useState(false);
+  const [paused, setPaused] = useState(false);
 
   // Spacers only make sense while two leaves are visible at once, so the book
   // is rebuilt with or without them as the window crosses the threshold.
@@ -141,6 +141,9 @@ export function PageFlipView({
     currentRef.current = startAt;
 
     book.on("flip", (event) => {
+      // A book that has been replaced still has listeners of its own (see the
+      // teardown below) and shares these refs with the one on screen.
+      if (flipRef.current !== book) return;
       if (!turnRequested.current) return;
       turnRequested.current = false;
 
@@ -155,6 +158,13 @@ export function PageFlipView({
     return () => {
       flipRef.current = null;
       try {
+        // StPageFlip unbinds its window resize listener only on the branch it
+        // takes for mouse-driven books, so a book destroyed here would keep
+        // reacting to resizes forever — re-rendering a detached DOM tree and
+        // firing page events at the book that replaced it. Claiming the mouse
+        // events it was never given sends destroy() down the branch that cleans
+        // up properly; the listeners it removes in passing were never added.
+        settingsOf(book).useMouseEvents = true;
         book.destroy();
       } catch {
         // destroy() throws if the mount was already torn down
@@ -166,7 +176,7 @@ export function PageFlipView({
     // since StPageFlip takes ownership of the page DOM after loadFromHTML.
   }, [album, leaves]);
 
-  const goNext = useCallback(() => {
+  const advance = useCallback(() => {
     const book = flipRef.current;
     if (!book) return;
     // Against this component's own index, not the library's: that one reads
@@ -184,18 +194,31 @@ export function PageFlipView({
     book.flipNext();
   }, [leaves, loop]);
 
-  const goPrev = useCallback(() => {
+  const retreat = useCallback(() => {
     const book = flipRef.current;
     if (!book) return;
     turnRequested.current = true;
     book.flipPrev();
   }, []);
 
+  // Turning a page by hand ends the presentation. Otherwise the reader stops on
+  // a greeting to read it and the ticker pulls the page out from under them a
+  // few seconds later, which reads as the book jumping on its own.
+  const goNext = useCallback(() => {
+    setPaused(true);
+    advance();
+  }, [advance]);
+
+  const goPrev = useCallback(() => {
+    setPaused(true);
+    retreat();
+  }, [retreat]);
+
   useAutoplay({
     enabled: autoplay,
     speed: autoplaySpeed,
-    paused: interacted,
-    onTick: goNext,
+    paused,
+    onTick: advance,
   });
 
   const swipe = useSwipe(goNext, goPrev);
@@ -250,15 +273,22 @@ export function PageFlipView({
             <button
               type="button"
               className="ae-btn ae-btn--ghost"
-              onClick={() => setInteracted((paused) => !paused)}
+              onClick={() => setPaused((on) => !on)}
             >
-              {interacted ? "המשך הצגה" : "השהה הצגה"}
+              {paused ? "המשך הצגה" : "השהה הצגה"}
             </button>
           ) : null}
         </div>
       ) : null}
     </div>
   );
+}
+
+/** The live settings object, which StPageFlip's typings leave off the class. */
+function settingsOf(book: PageFlip): { useMouseEvents: boolean } {
+  return (
+    book as unknown as { getSettings(): { useMouseEvents: boolean } }
+  ).getSettings();
 }
 
 /**
