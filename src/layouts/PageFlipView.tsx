@@ -17,6 +17,9 @@ import type { AlbumSlide, LayoutViewProps } from "../types";
 /** Narrowest a single leaf may get; also decides when two of them fit. */
 const MIN_PAGE_WIDTH = 260;
 
+/** How far a finger travels before it counts as a page turn rather than a tap. */
+const SWIPE_THRESHOLD = 40;
+
 /**
  * Hardcover book layout.
  *
@@ -147,6 +150,8 @@ export function PageFlipView({
     onTick: goNext,
   });
 
+  const swipe = useSwipe(goNext, goPrev);
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     // In RTL the left arrow advances, mirroring the physical turn direction.
     if (event.key === "ArrowLeft") {
@@ -166,7 +171,7 @@ export function PageFlipView({
       aria-label={album.title}
       onKeyDown={handleKeyDown}
     >
-      <div className="ae-flip__stage">
+      <div className="ae-flip__stage" {...swipe}>
         <div ref={hostRef} className="ae-flip__book" />
         <button
           type="button"
@@ -206,6 +211,58 @@ export function PageFlipView({
       ) : null}
     </div>
   );
+}
+
+/**
+ * Swipe-to-turn for touch, which the library would normally provide.
+ *
+ * Its own pointer handling is off because the book is mirrored, so the gesture
+ * is measured here instead — in viewport coordinates, which the mirror does not
+ * touch. A finger moving rightwards advances: the reader is dragging the
+ * left-hand leaf across the spine, the same page the "next" tap zone covers.
+ *
+ * Mouse drags are ignored. Selecting a line of a greeting would otherwise turn
+ * the page out from under the selection.
+ */
+function useSwipe(onNext: () => void, onPrev: () => void) {
+  const from = useRef<{ x: number; y: number; id: number } | null>(null);
+  const turned = useRef(false);
+
+  return {
+    onPointerDown(event: React.PointerEvent) {
+      turned.current = false;
+      from.current =
+        event.pointerType === "mouse" || !event.isPrimary
+          ? null
+          : { x: event.clientX, y: event.clientY, id: event.pointerId };
+    },
+    onPointerUp(event: React.PointerEvent) {
+      const start = from.current;
+      from.current = null;
+      if (!start || start.id !== event.pointerId) return;
+
+      const dx = event.clientX - start.x;
+      // A gesture that travelled further down than across was a scroll that
+      // happened to drift, not a turn.
+      if (Math.abs(dx) < SWIPE_THRESHOLD) return;
+      if (Math.abs(dx) <= Math.abs(event.clientY - start.y)) return;
+
+      turned.current = true;
+      if (dx > 0) onNext();
+      else onPrev();
+    },
+    onPointerCancel() {
+      from.current = null;
+    },
+    // A swipe ending over a tap zone still emits a click, which would turn a
+    // second page. Caught on the way down, before the zone sees it.
+    onClickCapture(event: React.MouseEvent) {
+      if (!turned.current) return;
+      turned.current = false;
+      event.stopPropagation();
+      event.preventDefault();
+    },
+  };
 }
 
 function renderLeaf(album: LayoutViewProps["album"], slide: AlbumSlide) {

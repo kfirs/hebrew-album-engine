@@ -659,6 +659,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Horizontal drags belong to the page turn, so the browser must not claim
+     them for scrolling or for its own back-swipe. Vertical is left alone. */
+  touch-action: pan-y;
 }
 
 /*
