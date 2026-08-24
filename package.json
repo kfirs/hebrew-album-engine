@@ -1,8 +1,18 @@
 {
-  "name": "@album-engine/core",
+  "name": "@kfirs/album-engine-core",
   "version": "0.1.0",
   "description": "Generic, RTL-first React rendering engine for digital congratulatory albums (page-flip, slider, grid).",
   "license": "MIT",
+  "author": "Kfir Sasson <kfir.sasson@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kfirs/hebrew-album-engine.git"
+  },
+  "homepage": "https://github.com/kfirs/hebrew-album-engine#readme",
+  "bugs": "https://github.com/kfirs/hebrew-album-engine/issues",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "sideEffects": [
     "**/*.css"
@@ -24,7 +34,8 @@
   "scripts": {
     "build": "vite build && tsc -p tsconfig.build.json",
     "dev": "vite build --watch",
-    "typecheck": "tsc -p tsconfig.build.json --noEmit"
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
     "react": ">=18",

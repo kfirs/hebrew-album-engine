@@ -1,4 +1,4 @@
-# @album-engine/core
+# @kfirs/album-engine-core
 
 RTL-first React rendering engine for digital congratulatory albums.
 
@@ -11,7 +11,7 @@ alignments.
 ## Install
 
 ```bash
-npm install @album-engine/core
+npm install @kfirs/album-engine-core
 ```
 
 `react` and `react-dom` (18 or newer) are peer dependencies.
@@ -19,8 +19,8 @@ npm install @album-engine/core
 ## Usage
 
 ```tsx
-import { AlbumEngine, type AlbumConfig } from "@album-engine/core";
-import "@album-engine/core/styles.css";
+import { AlbumEngine, type AlbumConfig } from "@kfirs/album-engine-core";
+import "@kfirs/album-engine-core/styles.css";
 
 const album: AlbumConfig = {
   id: "demo",
@@ -38,7 +38,7 @@ const album: AlbumConfig = {
     {
       id: "p1",
       order: 0,
-      text: "מזל טוב! שתמיד תמשיכי להאיר.",
+      html: "<p>מזל טוב! <strong>שתמיד</strong> תמשיכי להאיר.</p>",
       fontFamily: "Rubik",
       fontSize: "22px",
       textColor: "#1E3A8A",
@@ -54,6 +54,37 @@ export function Album() {
 
 Load the Hebrew families you reference in `fontFamily` yourself (for example via
 Google Fonts); the engine only applies the family name.
+
+## `page.html` is rendered as markup
+
+A greeting is HTML, and the engine renders it without escaping. It is a
+rendering library and does no sanitising of its own: whatever puts a value in
+`html` is responsible for it being safe.
+
+If greetings can come from anyone but the album's owner — a public "add your
+wish" form, say — sanitise them **on the server, on the way in**, with something
+like [`sanitize-html`](https://www.npmjs.com/package/sanitize-html). An
+allowlist enforced in the browser protects nobody, because the request can be
+made without the browser.
+
+The tags the engine styles, and a reasonable allowlist to start from, are `p`,
+`br`, `strong`, `b`, `em`, `i`, `u`, `s`, `ul`, `ol`, `li` and `span`, with
+`style` limited to `color`, `font-size` and `text-align`.
+
+## Typography and inheritance
+
+`fontFamily`, `fontSize`, `textColor` and `textAlign` are all nullable on a
+page. Leave one out and the page falls back to the album's matching
+`default*` field, which is what lets an album-wide change reach greetings that
+were written before it. Set one and it wins for that page alone.
+
+## Pages that carry both a wish and a photo
+
+A greeting with text *and* an `imageUrl` is rendered as two slides rather than
+one crowded page — the words first, then the photo, with the signature staying
+with the words. In the book layout, when the viewport is wide enough to show
+two leaves at once, a blank leaf is inserted where needed so a split pair always
+lands on the same spread instead of straddling a turn.
 
 ## `AlbumEngine` props
 
@@ -71,6 +102,9 @@ Google Fonts); the engine only applies the family name.
 
 - `PAGE_FLIP` — a real page-turning book via StPageFlip, mirrored so it opens
   from the right. Autoplay is driven by an interval against the instance API.
+  Because the mirror inverts the library's own pointer maths, turns are handled
+  here instead: tap zones, the arrow keys, the controls, and a swipe on touch
+  (rightwards to advance, as though pulling the left leaf across the spine).
 - `SLIDER` — a Swiper carousel; autoplay uses Swiper's own Autoplay module.
 - `GRID` — a responsive mosaic of every greeting, bracketed by the covers.
   Presentation flags do not apply.
