@@ -8,12 +8,20 @@ export { AlbumEngine } from "./AlbumEngine";
 export { RTLCanvas } from "./RTLCanvas";
 export { BackgroundOrchestrator } from "./BackgroundOrchestrator";
 export { GreetingPage } from "./GreetingPage";
+export { BlankPage } from "./BlankPage";
 export { CoverWrapper } from "./covers/CoverWrapper";
 export { PageFlipView } from "./layouts/PageFlipView";
 export { SliderView } from "./layouts/SliderView";
 export { GridView } from "./layouts/GridView";
+/** Printing needs `@sassoninc/album-engine-core/print.css` alongside it. */
+export { PrintBook, paginate } from "./PrintBook";
 export { useAutoplay } from "./hooks/useAutoplay";
 export { backgroundStyle } from "./utils/background";
+export { buildSlides } from "./utils/buildSlides";
+export { pairSplitGreetings } from "./utils/pairSpreads";
+
+export type { PrintBookProps, PrintSheet } from "./PrintBook";
+export type { BuildSlidesOptions } from "./utils/buildSlides";
 
 export { LAYOUT_TYPES, COVER_STYLE_TYPES, PAGE_STYLE_TYPES } from "./types";
 export type {
@@ -21,6 +29,7 @@ export type {
   AlbumEngineProps,
   AlbumSlide,
   CoverStyleType,
+  GreetingPart,
   LayoutType,
   LayoutViewProps,
   PageConfig,

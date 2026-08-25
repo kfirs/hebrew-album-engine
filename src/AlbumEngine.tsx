@@ -8,11 +8,11 @@ import { GridView } from "./layouts/GridView";
 import { PageFlipView } from "./layouts/PageFlipView";
 import { SliderView } from "./layouts/SliderView";
 import { RTLCanvas } from "./RTLCanvas";
+import { buildSlides } from "./utils/buildSlides";
 import type {
   AlbumEngineProps,
   AlbumSlide,
   LayoutViewProps,
-  PageConfig,
   ViewVariant,
 } from "./types";
 
@@ -36,17 +36,10 @@ export function AlbumEngine({
   className,
   onPageChange,
 }: AlbumEngineProps) {
-  const slides = useMemo<AlbumSlide[]>(() => {
-    const ordered = [...albumData.pages].sort((a, b) => a.order - b.order);
-    const compiled: AlbumSlide[] = [
-      { kind: "front-cover", key: `${albumData.id}-front` },
-      ...ordered.flatMap<AlbumSlide>(splitGreeting),
-    ];
-    if (showBackCover) {
-      compiled.push({ kind: "back-cover", key: `${albumData.id}-back` });
-    }
-    return compiled;
-  }, [albumData.id, albumData.pages, showBackCover]);
+  const slides = useMemo<AlbumSlide[]>(
+    () => buildSlides(albumData, { showBackCover }),
+    [albumData, showBackCover],
+  );
 
   const layoutType = albumData.layoutType || "SLIDER";
   const LayoutView = LAYOUTS[layoutType] ?? SliderView;
@@ -79,34 +72,6 @@ export function AlbumEngine({
       </BackgroundOrchestrator>
     </RTLCanvas>
   );
-}
-
-/**
- * A greeting that has both a photo and a wish becomes two pages — the words
- * first, then the picture — because a single page has to shrink both to fit
- * one. Anything carrying only one of the two is left as a single page.
- */
-function splitGreeting(page: PageConfig): AlbumSlide[] {
-  const hasText = hasWords(page.html);
-  const hasPhoto = Boolean(page.imageUrl?.trim());
-
-  if (!hasText || !hasPhoto) {
-    return [{ kind: "page", key: page.id, page }];
-  }
-
-  return [
-    { kind: "page", key: `${page.id}-text`, page, part: "text" },
-    { kind: "page", key: `${page.id}-photo`, page, part: "photo" },
-  ];
-}
-
-/**
- * Whether a greeting says anything, ignoring its markup. An editor leaves an
- * empty paragraph behind when the last word is deleted, and that must not count
- * as a wish worth splitting a photo away from.
- */
-function hasWords(html: string): boolean {
-  return html.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").trim().length > 0;
 }
 
 function variantClass(variant: ViewVariant): string {

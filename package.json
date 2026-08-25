@@ -1,6 +1,6 @@
 {
   "name": "@sassoninc/album-engine-core",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Generic, RTL-first React rendering engine for digital congratulatory albums (page-flip, slider, grid).",
   "license": "MIT",
   "author": "Kfir Sasson <kfir.sasson@gmail.com>",
@@ -29,10 +29,11 @@
       "import": "./dist/index.js"
     },
     "./styles.css": "./dist/album-engine-core.css",
+    "./print.css": "./dist/print.css",
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.build.json",
+    "build": "vite build && tsc -p tsconfig.build.json && node scripts/copy-print-css.mjs",
     "dev": "vite build --watch",
     "demo": "vite --config vite.demo.config.ts",
     "demo:capture": "node scripts/capture-demo.mjs",

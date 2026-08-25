@@ -156,12 +156,57 @@ greeting is too small to make out faces in. Pinching magnifies the page itself,
 and while the reader is zoomed in a one-finger drag pans rather than turning
 the leaf out from under them.
 
+## Printing and PDF
+
+`PrintBook` lays an album onto fixed sheets so a browser can paginate it, which
+the interactive layouts cannot be — they size themselves to the window. Export
+is then whatever the browser's print dialog offers, including *Save as PDF*.
+
+```tsx
+import { PrintBook } from "@sassoninc/album-engine-core";
+import "@sassoninc/album-engine-core/styles.css";
+import "@sassoninc/album-engine-core/print.css";
+
+<PrintBook album={album} />;
+```
+
+The stylesheet is a **separate entry point on purpose**: it carries an `@page`
+rule, and page size is a document-level declaration, so importing it globally
+would make every page in the host application print as A4 landscape. Import it
+only on the route that prints an album.
+
+Sheets are paginated the way the book is: the front cover opens alone, then
+every sheet is an open spread of two leaves, complete with the same spacer
+logic, so a greeting split into words and photo is never dealt across two
+sheets. A reader who knows the digital album recognises the printed one.
+
+| Prop | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `album` | `AlbumConfig` | — | Album configuration including its pages |
+| `showBackCover` | `boolean` | `true` | Appends the closing cover, as the book does |
+| `pageNumbers` | `boolean` | `true` | Numbers the leaves along the foot |
+| `className` | `string` | — | Added to the RTL canvas |
+
+Sheet size and the themed border around the book are custom properties, so
+another stock is a stylesheet override rather than a fork:
+
+```css
+.ae-print {
+  --ae-sheet-w: 279mm; /* US Letter, landscape */
+  --ae-sheet-h: 216mm;
+  --ae-sheet-margin: 12mm;
+}
+```
+
+Change `@page size` to match if you do.
+
 ## Exports
 
 Besides `AlbumEngine`, the individual building blocks are exported for custom
 compositions: `RTLCanvas`, `BackgroundOrchestrator`, `GreetingPage`,
-`CoverWrapper`, `PageFlipView`, `SliderView`, `GridView`, the `useAutoplay` hook
-and the `backgroundStyle` helper, along with all types.
+`BlankPage`, `CoverWrapper`, `PageFlipView`, `SliderView`, `GridView`,
+`PrintBook`, the `useAutoplay` hook, and the `backgroundStyle`, `buildSlides`,
+`pairSplitGreetings` and `paginate` helpers, along with all types.
 
 ## Running the demo
 
