@@ -25,7 +25,10 @@ export function SliderView({
   loop,
   showControls,
   onPageChange,
+  bindNavigator,
 }: LayoutViewProps) {
+  const visible = slides.filter((slide) => slide.kind !== "blank");
+
   return (
     <div className="ae-slider">
       <Swiper
@@ -34,7 +37,7 @@ export function SliderView({
         navigation={showControls}
         pagination={showControls ? { clickable: true } : false}
         keyboard={{ enabled: true }}
-        loop={loop && slides.length > 2}
+        loop={loop && visible.length > 2}
         autoplay={
           autoplay
             ? {
@@ -47,29 +50,38 @@ export function SliderView({
         }
         spaceBetween={24}
         slidesPerView={1}
+        onSwiper={(swiper) =>
+          bindNavigator?.({
+            // Loop mode duplicates slides internally; realIndex and slideToLoop
+            // speak the real (deduplicated) order, which is what slide indices
+            // mean everywhere else.
+            get count() {
+              return visible.length;
+            },
+            goto: (index: number) => swiper.slideToLoop(index),
+          })
+        }
         onSlideChange={(swiper) => onPageChange?.(swiper.realIndex)}
         className="ae-slider__swiper"
       >
         {/* Spacers exist to fix spread parity in the book; a carousel shows one
             slide at a time, so a blank here would just be a slide to skip. */}
-        {slides
-          .filter((slide) => slide.kind !== "blank")
-          .map((slide) => (
-            <SwiperSlide key={slide.key} className="ae-slider__slide">
-              {slide.kind === "page" ? (
-                <GreetingPage
-                  album={album}
-                  page={slide.page}
-                  part={slide.part}
-                />
-              ) : (
-                <CoverWrapper
-                  album={album}
-                  face={slide.kind === "front-cover" ? "front" : "back"}
-                />
-              )}
-            </SwiperSlide>
-          ))}
+        {visible.map((slide) => (
+          <SwiperSlide key={slide.key} className="ae-slider__slide">
+            {slide.kind === "page" ? (
+              <GreetingPage
+                album={album}
+                page={slide.page}
+                part={slide.part}
+              />
+            ) : (
+              <CoverWrapper
+                album={album}
+                face={slide.kind === "front-cover" ? "front" : "back"}
+              />
+            )}
+          </SwiperSlide>
+        ))}
       </Swiper>
     </div>
   );

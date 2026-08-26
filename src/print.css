@@ -141,6 +141,25 @@
   cursor: default;
 }
 
+/*
+ * Collages and videos on paper.
+ *
+ * A video cannot print; what survives is a framed still — the browser paints
+ * the poster frame or first frame it has — with the play affordance hidden, so
+ * the sheet does not advertise a control paper cannot honour.
+ */
+.ae-print__leaf .ae-page__collage img {
+  object-fit: cover;
+}
+.ae-print__leaf .ae-page__collage[style*="--ae-collage-columns:1"] img,
+.ae-print__leaf .is-spanning img {
+  object-fit: contain;
+}
+.ae-print__leaf video::-webkit-media-controls,
+.ae-print__leaf video::-webkit-media-controls-enclosure {
+  display: none !important;
+}
+
 @media print {
   @page {
     size: A4 landscape;

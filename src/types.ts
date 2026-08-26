@@ -56,6 +56,17 @@ export interface PageConfig {
   id: string;
   order: number;
   imageUrl?: string | null;
+  /**
+   * Extra photos beyond the primary one. Rendered together with `imageUrl` as
+   * an auto-collage on the media page; order matters, duplicates are dropped.
+   */
+  photoUrls?: string[] | null;
+  /**
+   * A video greeting. When present it takes the media page's slot — the player
+   * renders instead of any collage — and splits the greeting exactly like a
+   * photo does.
+   */
+  videoUrl?: string | null;
   /** Page-level background override: a CSS gradient/color string or an image URL. */
   backgroundConfig?: string | null;
   /**
@@ -132,6 +143,27 @@ export interface AlbumEngineProps {
   showControls?: boolean;
   className?: string;
   onPageChange?: (index: number) => void;
+  /**
+   * Receives a controller for driving the album programmatically — the editor's
+   * preview sync uses it to jump to the page a greeting card was opened from.
+   * Called once per engine instance; the controller survives layout switches
+   * and content rebuilds, and every call on it is best-effort (a no-op before
+   * a layout has mounted or while it cannot seek).
+   */
+  onControllerReady?: (controller: AlbumNavController) => void;
+}
+
+/**
+ * Imperative handle over whatever layout is active. Indices are slide indices
+ * in cover-aware display order (0 = front cover).
+ */
+export interface AlbumNavController {
+  /** How many slides the active layout shows. */
+  readonly slideCount: number;
+  /** Jumps to a slide index. Clamped into range. */
+  gotoSlide(index: number): void;
+  /** Steps one slide forward or back from the current position. */
+  step(delta: 1 | -1): void;
 }
 
 /** Props every layout view receives from `AlbumEngine`. */
@@ -144,6 +176,21 @@ export interface LayoutViewProps {
   loop: boolean;
   showControls: boolean;
   onPageChange?: (index: number) => void;
+  /**
+   * Registers the seek surface the layout can provide, and withdraws it with
+   * `null` when that surface goes away (unmount, book rebuild). A layout that
+   * cannot seek simply never calls it.
+   */
+  bindNavigator?: (navigator: LayoutNavigator | null) => void;
+}
+
+/**
+ * The seeking surface a concrete layout exposes to `AlbumNavController`.
+ * Indices are slide indices in display order.
+ */
+export interface LayoutNavigator {
+  readonly count: number;
+  goto(index: number): void;
 }
 
 /**

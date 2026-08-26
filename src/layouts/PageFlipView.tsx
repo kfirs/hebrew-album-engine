@@ -38,6 +38,7 @@ export function PageFlipView({
   loop,
   showControls,
   onPageChange,
+  bindNavigator,
 }: LayoutViewProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const flipRef = useRef<PageFlip | null>(null);
@@ -57,6 +58,9 @@ export function PageFlipView({
 
   const changeRef = useRef(onPageChange);
   changeRef.current = onPageChange;
+
+  const bindNavigatorRef = useRef(bindNavigator);
+  bindNavigatorRef.current = bindNavigator;
 
   /**
    * Which greeting the reader is on, remembered by key rather than by index so
@@ -140,6 +144,47 @@ export function PageFlipView({
     setCurrent(startAt);
     currentRef.current = startAt;
 
+    /**
+     * The seek surface is rebuilt with the book — a stale one would turn pages
+     * in a mount that no longer exists. Slide indices map through the leaf
+     * list because spacers exist in the book but not in the slide list; a seek
+     * aimed at a spacer lands on the nearest real leaf ahead of it.
+     */
+    const leafIndexByKey = new Map<string, number>();
+    leaves.forEach((leaf, position) => {
+      if (leaf.kind !== "blank") leafIndexByKey.set(leaf.key, position);
+    });
+    /** Inverse of the map above: a leaf index back to a slide index. */
+    const slideIndexOfLeaf = (leafIndex: number): number => {
+      const key = leaves[Math.min(leafIndex, leaves.length - 1)]?.key;
+      return slides.findIndex((slide) => slide.key === key);
+    };
+    bindNavigatorRef.current?.({
+      get count() {
+        return slides.length;
+      },
+      goto(index: number) {
+        const clamped = Math.max(0, Math.min(slides.length - 1, index));
+        let target = 0;
+        for (let i = clamped; i >= 0; i -= 1) {
+          const leafIndex = leafIndexByKey.get(slides[i].key);
+          if (leafIndex !== undefined) {
+            target = Math.min(leafIndex, book.getPageCount() - 1);
+            break;
+          }
+        }
+        // The `flip` handler drops events nobody asked for (a resize re-emits
+        // them); a programmatic seek counts as asking, and the host's
+        // onPageChange must hear where the seek landed.
+        turnRequested.current = true;
+        book.turnToPage(target);
+        currentRef.current = target;
+        setCurrent(target);
+        anchorRef.current = anchorAt(leaves, target);
+        changeRef.current?.(slideIndexOfLeaf(target));
+      },
+    });
+
     book.on("flip", (event) => {
       // A book that has been replaced still has listeners of its own (see the
       // teardown below) and shares these refs with the one on screen.
@@ -157,6 +202,7 @@ export function PageFlipView({
 
     return () => {
       flipRef.current = null;
+      bindNavigatorRef.current?.(null);
       try {
         // StPageFlip unbinds its window resize listener only on the branch it
         // takes for mouse-driven books, so a book destroyed here would keep

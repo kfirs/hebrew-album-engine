@@ -18,13 +18,18 @@ export default defineConfig({
     rollupOptions: {
       // page-flip only ships a UMD browser build; bundling it makes Rolldown
       // emit a `require` interop shim that Turbopack refuses to evaluate, so it
-      // is left for the host bundler to resolve.
+      // is left for the host bundler to resolve. swiper is a declared runtime
+      // dependency for the same reason: bundling it would ship a second copy
+      // alongside whatever the host app already resolves. Its stylesheets are
+      // the exception — they stay inlined so that one `styles.css` import is
+      // still all a consumer needs for the slider to look right.
       external: [
         "react",
         "react-dom",
         "react/jsx-runtime",
         "react-dom/client",
         "page-flip",
+        /^swiper(\/(?!css).*)?$/,
       ],
       output: {
         // Every view in the engine is interactive, so mark the whole bundle as

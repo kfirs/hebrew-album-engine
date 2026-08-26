@@ -104,10 +104,16 @@ page. Leave one out and the page falls back to the album's matching
 `default*` field, which is what lets an album-wide change reach greetings that
 were written before it. Set one and it wins for that page alone.
 
-## Pages that carry both a wish and a photo
+## Photos, collages and video
 
-A greeting with text *and* an `imageUrl` is rendered as two slides rather than
-one crowded page — the words first, then the photo, with the signature staying
+A page's picture can be a single `imageUrl`, several photos (`photoUrls`, laid
+out as an auto-collage that keeps a lone trailing photo spanning its row), or a
+`videoUrl`, which takes the media slot on its own. Printing a video greeting
+yields the poster frame with the player controls suppressed, since paper cannot
+honour them.
+
+A greeting with text *and* any of those is rendered as two slides rather than
+one crowded page — the words first, then the media, with the signature staying
 with the words. In the book layout, when the viewport is wide enough to show
 two leaves at once, a blank leaf is inserted where needed so a split pair always
 lands on the same spread instead of straddling a turn.
@@ -122,6 +128,7 @@ lands on the same spread instead of straddling a turn.
 | `showBackCover` | `boolean` | `true` | Appends a derived closing cover |
 | `showControls` | `boolean` | `true` | Set to `false` for kiosk playback |
 | `onPageChange` | `(index: number) => void` | — | Fired when the active slide changes |
+| `onControllerReady` | `(c: AlbumNavController) => void` | — | Hands back a `gotoSlide`/`step` handle for driving the album from outside |
 | `className` | `string` | — | Added to the RTL canvas |
 
 ## Layouts

@@ -8,6 +8,7 @@ import { CornerOrnament } from "./covers/CornerOrnament";
 import { useFitText } from "./hooks/useFitText";
 import { PhotoLightbox } from "./PhotoLightbox";
 import { pageStyleClass, resolvePageStyle } from "./utils/pageStyle";
+import { hasMedia, readPageMedia } from "./utils/media";
 import type { AlbumConfig, GreetingPart, PageConfig } from "./types";
 
 export interface GreetingPageProps {
@@ -26,9 +27,10 @@ export interface GreetingPageProps {
 }
 
 /**
- * Renders a single greeting: optional photo plus the styled Hebrew wish.
- * Typography resolves page override → album default → engine fallback, so an
- * album-wide choice reaches every greeting that has not asked for its own.
+ * Renders a single greeting: optional media (a video player or a photo
+ * collage) plus the styled Hebrew wish. Typography resolves page override →
+ * album default → engine fallback, so an album-wide choice reaches every
+ * greeting that has not asked for its own.
  */
 export function GreetingPage({
   album,
@@ -37,7 +39,7 @@ export function GreetingPage({
   fitToPage = true,
 }: GreetingPageProps) {
   const bodyRef = useRef<HTMLDivElement>(null);
-  const [zoomed, setZoomed] = useState(false);
+  const [zoomed, setZoomed] = useState<string | null>(null);
 
   const fontSize = page.fontSize || album.defaultFontSize || "18px";
   const textStyle: CSSProperties = {
@@ -57,16 +59,18 @@ export function GreetingPage({
   const ink = page.textColor || album.defaultTextColor;
   if (ink) textStyle.color = ink;
 
-  // The signature belongs with the words, so a photo-only half carries neither.
-  const photo = part === "text" ? null : page.imageUrl;
+  const media = readPageMedia(page);
+  // The signature belongs with the words, so a media-only half carries neither.
   const showText = part !== "photo";
+  const showMedia = part !== "text" && hasMedia(media);
 
   useFitText(bodyRef, fitToPage && showText, [
     page.html,
     page.authorName,
     fontSize,
     textStyle.fontFamily,
-    photo,
+    media.photos.join("|"),
+    media.videoUrl,
   ]);
 
   return (
@@ -86,20 +90,28 @@ export function GreetingPage({
         .filter(Boolean)
         .join(" ")}
     >
-      {photo ? (
-        <figure className="ae-page__media">
-          <button
-            type="button"
-            className="ae-page__zoom"
-            aria-label="הגדלת התמונה"
-            onClick={() => setZoomed(true)}
-          >
-            <img src={photo} alt="" loading="lazy" />
-          </button>
-        </figure>
+      {showMedia ? (
+        media.videoUrl ? (
+          <figure className="ae-page__media">
+            {/* preload stays at metadata so an album of video greetings does
+                not open thirty streams — only the page actually being watched
+                downloads its frames. */}
+            <video
+              src={media.videoUrl}
+              controls
+              preload="metadata"
+              playsInline
+            />
+          </figure>
+        ) : (
+          <PhotoCollage
+            photos={media.photos}
+            onZoom={setZoomed}
+          />
+        )
       ) : null}
-      {zoomed && photo ? (
-        <PhotoLightbox src={photo} onClose={() => setZoomed(false)} />
+      {zoomed ? (
+        <PhotoLightbox src={zoomed} onClose={() => setZoomed(null)} />
       ) : null}
       {showText ? (
         // Typography sits on the body so the signature stays proportional to
@@ -115,6 +127,50 @@ export function GreetingPage({
         </div>
       ) : null}
     </BackgroundOrchestrator>
+  );
+}
+
+/**
+ * An auto-collage of one to six photos. Every photo keeps the single-photo
+ * treatment — zoom button included, so the lightbox still gives it the whole
+ * screen; the collage only changes how they share the page.
+ */
+function PhotoCollage({
+  photos,
+  onZoom,
+}: {
+  photos: string[];
+  onZoom: (src: string) => void;
+}) {
+  if (photos.length === 0) return null;
+
+  const columns = photos.length > 2 ? (photos.length === 4 ? 2 : 3) : photos.length;
+  const lastSpans =
+    columns > 1 &&
+    photos.length % columns === 1;
+
+  return (
+    <figure
+      className="ae-page__media ae-page__collage"
+      style={{ "--ae-collage-columns": columns } as CSSProperties}
+    >
+      {photos.map((url, index) => (
+        <button
+            key={`${url}-${index}`}
+          type="button"
+          className={[
+            "ae-page__zoom",
+            lastSpans && index === photos.length - 1 ? "is-spanning" : null,
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          aria-label="הגדלת התמונה"
+          onClick={() => onZoom(url)}
+        >
+          <img src={url} alt="" loading="lazy" />
+        </button>
+      ))}
+    </figure>
   );
 }
 // <editor-fold defaultstate="collapsed" desc="AI Generated Code - End">

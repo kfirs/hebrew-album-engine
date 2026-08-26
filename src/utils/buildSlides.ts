@@ -3,6 +3,7 @@
 // Generated on: 2026-08-25 20:10:00
 // </editor-fold>
 import type { AlbumConfig, AlbumSlide, PageConfig } from "../types";
+import { hasMedia, readPageMedia } from "./media";
 
 export interface BuildSlidesOptions {
   /** Append the closing cover. Defaults to true. */
@@ -33,15 +34,16 @@ export function buildSlides(
 }
 
 /**
- * A greeting that has both a photo and a wish becomes two pages — the words
- * first, then the picture — because a single page has to shrink both to fit
- * one. Anything carrying only one of the two is left as a single page.
+ * A greeting that has both a wish and something to watch becomes two pages —
+ * the words first, then the media (a video player or a photo collage) — because
+ * a single page has to shrink both to fit one. Anything carrying only one of
+ * the two is left as a single page.
  */
 function splitGreeting(page: PageConfig): AlbumSlide[] {
   const hasText = hasWords(page.html);
-  const hasPhoto = Boolean(page.imageUrl?.trim());
+  const hasVisual = hasMedia(readPageMedia(page));
 
-  if (!hasText || !hasPhoto) {
+  if (!hasText || !hasVisual) {
     return [{ kind: "page", key: page.id, page }];
   }
 
