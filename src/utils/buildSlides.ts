@@ -4,6 +4,7 @@
 // </editor-fold>
 import type { AlbumConfig, AlbumSlide, PageConfig } from "../types";
 import { hasMedia, readPageMedia } from "./media";
+import { buildWordCloud } from "./wordCloud";
 
 export interface BuildSlidesOptions {
   /** Append the closing cover. Defaults to true. */
@@ -12,7 +13,8 @@ export interface BuildSlidesOptions {
 
 /**
  * Compiles an album into the ordered leaf list every layout reads: the front
- * cover, each greeting in page order, then the back cover.
+ * cover, each greeting in page order, an optional word cloud, then the back
+ * cover.
  *
  * Shared rather than per-layout so anything rendering an album — the flip book,
  * the slider, the printed sheets — agrees on what the leaves are and how a
@@ -27,6 +29,13 @@ export function buildSlides(
     { kind: "front-cover", key: `${album.id}-front` },
     ...ordered.flatMap<AlbumSlide>(splitGreeting),
   ];
+
+  // An album of photo-only greetings has nothing to gather, and a page reading
+  // "not enough words yet" is worse than no page at all.
+  if (album.showWordCloud && buildWordCloud(album).length > 0) {
+    slides.push({ kind: "word-cloud", key: `${album.id}-cloud` });
+  }
+
   if (showBackCover) {
     slides.push({ kind: "back-cover", key: `${album.id}-back` });
   }

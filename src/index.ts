@@ -18,7 +18,12 @@ export { PrintBook, paginate } from "./PrintBook";
 export type { PrintSheet } from "./PrintBook";
 export { SliderView } from "./layouts/SliderView";
 export { RTLCanvas } from "./RTLCanvas";
+export { SlideSurface } from "./SlideSurface";
+export { WordCloudPage } from "./WordCloudPage";
 export { buildSlides } from "./utils/buildSlides";
+export { buildWordCloud } from "./utils/wordCloud";
+export type { CloudWord, WordCloudOptions } from "./utils/wordCloud";
+export { resolvePageStyle } from "./utils/pageStyle";
 export { useAutoplay } from "./hooks/useAutoplay";
 export {
   COVER_STYLE_TYPES,

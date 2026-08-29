@@ -50,6 +50,9 @@ export const demoAlbum: AlbumConfig = {
   pageStyle: "MINIMAL",
   syncPageStyleWithCover: false,
 
+  showWordCloud: true,
+  wordCloudTitle: "המילים שלכם",
+
   defaultFontFamily: "Rubik",
   defaultFontSize: "22px",
   defaultTextColor: "#3b2b45",

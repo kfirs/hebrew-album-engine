@@ -6,9 +6,7 @@ import { PageFlip } from "page-flip";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 
-import { BlankPage } from "../BlankPage";
-import { CoverWrapper } from "../covers/CoverWrapper";
-import { GreetingPage } from "../GreetingPage";
+import { SlideSurface } from "../SlideSurface";
 import { useAutoplay } from "../hooks/useAutoplay";
 import { useSpreads } from "../hooks/useSpreads";
 import { pairSplitGreetings } from "../utils/pairSpreads";
@@ -413,18 +411,7 @@ function useSwipe(onNext: () => void, onPrev: () => void) {
 }
 
 function renderLeaf(album: LayoutViewProps["album"], slide: AlbumSlide) {
-  if (slide.kind === "page") {
-    return <GreetingPage album={album} page={slide.page} part={slide.part} />;
-  }
-  if (slide.kind === "blank") {
-    return <BlankPage album={album} />;
-  }
-  return (
-    <CoverWrapper
-      album={album}
-      face={slide.kind === "front-cover" ? "front" : "back"}
-    />
-  );
+  return <SlideSurface album={album} slide={slide} />;
 }
 
 /**

@@ -156,6 +156,42 @@ has nothing to bleed — can also dress the greeting pages, either by setting
 `pageStyle` or by setting `syncPageStyleWithCover` so the whole album reads as
 one bound object.
 
+A single page can also carry its own `pageStyle`, which outranks both. That is
+for the greeting that wants to stand apart — the grandmother's page in gold
+foil in an album that is otherwise plain — and not for dressing each page
+differently, which reads as a mistake rather than a choice.
+
+## The word cloud page
+
+Set `showWordCloud` and the album gains a closing page built from the words its
+greetings actually used, sized by how often each one appears.
+
+```ts
+const album: AlbumConfig = {
+  // …
+  showWordCloud: true,
+  wordCloudTitle: "המילים שלכם", // optional; this is the default
+};
+```
+
+It is a slide like any other, so it flows in the book, the carousel and the
+grid, and prints with the rest. Counting ignores the function words that would
+otherwise win every time — Hebrew's and English's both — and strips niqqud, so
+the same word written with and without vowel points is counted once. Hebrew
+glues its prepositions onto the word that follows, and separating them properly
+needs a morphological analyser, so `בבית` and `בית` are counted as the two
+different words they appear to be.
+
+Sizing is logarithmic against the rarest word shown and tops out at four times
+as common, which keeps an album with two greetings in it from printing two
+words enormous and everything else as fine print. The order is a hash of the
+words themselves rather than their frequency: it scatters the large words
+through the small, and it is the same order on the server, in the browser and
+on paper.
+
+`buildWordCloud(album)` is exported if you would rather draw the cloud
+yourself; it returns each word with its count and a `weight` from 0 to 1.
+
 ## Reading on a phone
 
 Photographs open full-screen when tapped, since a print sharing a page with a
@@ -211,9 +247,14 @@ Change `@page size` to match if you do.
 
 Besides `AlbumEngine`, the individual building blocks are exported for custom
 compositions: `RTLCanvas`, `BackgroundOrchestrator`, `GreetingPage`,
-`BlankPage`, `CoverWrapper`, `PageFlipView`, `SliderView`, `GridView`,
-`PrintBook`, the `useAutoplay` hook, and the `backgroundStyle`, `buildSlides`,
-`pairSplitGreetings` and `paginate` helpers, along with all types.
+`BlankPage`, `CoverWrapper`, `WordCloudPage`, `PageFlipView`, `SliderView`,
+`GridView`, `PrintBook`, the `useAutoplay` hook, and the `backgroundStyle`,
+`buildSlides`, `buildWordCloud`, `pairSplitGreetings`, `paginate` and
+`resolvePageStyle` helpers, along with all types.
+
+`SlideSurface` turns one slide into its surface and is what every layout and
+the printed sheet render through, so a composition built on it picks up new
+kinds of slide rather than having to learn each one.
 
 ## Running the demo
 

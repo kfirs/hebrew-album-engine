@@ -8,8 +8,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-import { CoverWrapper } from "../covers/CoverWrapper";
-import { GreetingPage } from "../GreetingPage";
+import { SlideSurface } from "../SlideSurface";
 import type { LayoutViewProps } from "../types";
 
 /**
@@ -68,18 +67,7 @@ export function SliderView({
             slide at a time, so a blank here would just be a slide to skip. */}
         {visible.map((slide) => (
           <SwiperSlide key={slide.key} className="ae-slider__slide">
-            {slide.kind === "page" ? (
-              <GreetingPage
-                album={album}
-                page={slide.page}
-                part={slide.part}
-              />
-            ) : (
-              <CoverWrapper
-                album={album}
-                face={slide.kind === "front-cover" ? "front" : "back"}
-              />
-            )}
+            <SlideSurface album={album} slide={slide} />
           </SwiperSlide>
         ))}
       </Swiper>

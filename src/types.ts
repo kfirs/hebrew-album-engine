@@ -70,6 +70,12 @@ export interface PageConfig {
   /** Page-level background override: a CSS gradient/color string or an image URL. */
   backgroundConfig?: string | null;
   /**
+   * Decorative treatment for this page alone. Overrides the album's `pageStyle`
+   * and any cover syncing, so a single greeting can be dressed differently
+   * without disturbing the rest. Null or absent means inherit.
+   */
+  pageStyle?: PageStyleType | null;
+  /**
    * The greeting, as markup, rendered without further escaping.
    *
    * The engine is a rendering library and does no sanitising: whatever puts a
@@ -115,6 +121,15 @@ export interface AlbumConfig {
   pageStyle?: PageStyleType | null;
   /** Dresses the pages in the cover's style instead of `pageStyle`. */
   syncPageStyleWithCover?: boolean;
+
+  /**
+   * Appends a page built from the words the greetings used most, after the last
+   * greeting and before the closing cover. It is skipped when the album has too
+   * little text to say anything.
+   */
+  showWordCloud?: boolean;
+  /** Heading above the word cloud. Defaults to a Hebrew label. */
+  wordCloudTitle?: string | null;
 
   /**
    * Typography for every greeting that does not override it, so one choice can
@@ -209,5 +224,7 @@ export type AlbumSlide =
    * pairs.
    */
   | { kind: "blank"; key: string }
+  /** The album's words, gathered onto one page. */
+  | { kind: "word-cloud"; key: string }
   | { kind: "page"; key: string; page: PageConfig; part?: GreetingPart };
 // <editor-fold defaultstate="collapsed" desc="AI Generated Code - End">

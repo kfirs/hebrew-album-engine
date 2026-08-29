@@ -4,7 +4,7 @@
 // </editor-fold>
 import { useEffect, useRef } from "react";
 import { CoverWrapper } from "../covers/CoverWrapper";
-import { GreetingPage } from "../GreetingPage";
+import { SlideSurface } from "../SlideSurface";
 import type { LayoutViewProps } from "../types";
 
 /**
@@ -24,7 +24,11 @@ export function GridView({
 }: LayoutViewProps) {
   const front = slides.find((slide) => slide.kind === "front-cover");
   const back = slides.find((slide) => slide.kind === "back-cover");
-  const pages = slides.filter((slide) => slide.kind === "page");
+  // Spacers exist to fix spread parity in the book; a mosaic has no spreads, so
+  // a blank card here would just be a hole.
+  const pages = slides.filter(
+    (slide) => slide.kind === "page" || slide.kind === "word-cloud",
+  );
 
   const itemRefs = useRef(new Map<string, HTMLElement>());
   const changeRef = useRef(onPageChange);
@@ -67,16 +71,9 @@ export function GridView({
               else itemRefs.current.delete(slide.key);
             }}
           >
-            {slide.kind === "page" ? (
-              // Grid cards grow with their content, so a long greeting gets a
-              // taller card instead of smaller type.
-              <GreetingPage
-                album={album}
-                page={slide.page}
-                part={slide.part}
-                fitToPage={false}
-              />
-            ) : null}
+            {/* Grid cards grow with their content, so a long greeting gets a
+                taller card instead of smaller type. */}
+            <SlideSurface album={album} slide={slide} fitToPage={false} />
           </article>
         ))}
       </div>

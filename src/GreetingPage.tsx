@@ -79,12 +79,12 @@ export function GreetingPage({
       override={page.backgroundConfig}
       ornament={
         <div className="ae-page__ornament" aria-hidden="true">
-          <CornerOrnament style={resolvePageStyle(album)} surface="page" />
+          <CornerOrnament style={resolvePageStyle(album, page)} surface="page" />
         </div>
       }
       className={[
         "ae-page",
-        pageStyleClass(album, Boolean(page.backgroundConfig?.trim())),
+        pageStyleClass(album, Boolean(page.backgroundConfig?.trim()), page),
         part ? `ae-page--${part}` : null,
       ]
         .filter(Boolean)

@@ -3,10 +3,8 @@
 // Generated on: 2026-08-25 20:20:00
 // </editor-fold>
 import { BackgroundOrchestrator } from "./BackgroundOrchestrator";
-import { BlankPage } from "./BlankPage";
-import { CoverWrapper } from "./covers/CoverWrapper";
-import { GreetingPage } from "./GreetingPage";
 import { RTLCanvas } from "./RTLCanvas";
+import { SlideSurface } from "./SlideSurface";
 import { buildSlides } from "./utils/buildSlides";
 import { pairSplitGreetings } from "./utils/pairSpreads";
 import type { AlbumConfig, AlbumSlide } from "./types";
@@ -108,19 +106,8 @@ export function PrintBook({
   );
 }
 
-/** Identical to the flip book's leaf rendering, so paper matches screen. */
+/** Shared with the flip book's leaf rendering, so paper matches screen. */
 function renderLeaf(album: AlbumConfig, slide: AlbumSlide) {
-  if (slide.kind === "page") {
-    return <GreetingPage album={album} page={slide.page} part={slide.part} />;
-  }
-  if (slide.kind === "blank") {
-    return <BlankPage album={album} />;
-  }
-  return (
-    <CoverWrapper
-      album={album}
-      face={slide.kind === "front-cover" ? "front" : "back"}
-    />
-  );
+  return <SlideSurface album={album} slide={slide} />;
 }
 // <editor-fold defaultstate="collapsed" desc="AI Generated Code - End">
