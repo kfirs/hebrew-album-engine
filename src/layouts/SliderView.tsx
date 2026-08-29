@@ -23,6 +23,7 @@ export function SliderView({
   autoplaySpeed,
   loop,
   showControls,
+  kiosk,
   onPageChange,
   bindNavigator,
 }: LayoutViewProps) {
@@ -42,8 +43,11 @@ export function SliderView({
             ? {
                 delay: Math.max(500, autoplaySpeed),
                 // A reader who swipes has taken over from the presentation.
-                disableOnInteraction: true,
-                pauseOnMouseEnter: true,
+                // On a kiosk there is no reader to take over: the cursor is
+                // wherever it was abandoned, and Swiper would sit paused under
+                // it for the rest of the evening.
+                disableOnInteraction: !kiosk,
+                pauseOnMouseEnter: !kiosk,
               }
             : false
         }

@@ -126,7 +126,8 @@ lands on the same spread instead of straddling a turn.
 | `presentationMode` | `boolean` | `albumData.autoplayEnabled` | Overrides the album's autoplay flag |
 | `viewVariant` | `"public-minimal" \| "dashboard-preview" \| "full"` | `"full"` | Chrome density preset |
 | `showBackCover` | `boolean` | `true` | Appends a derived closing cover |
-| `showControls` | `boolean` | `true` | Set to `false` for kiosk playback |
+| `showControls` | `boolean` | `true` | Set to `false` to hide the navigation chrome |
+| `kiosk` | `boolean` | `false` | Unattended playback: never pauses itself (see below) |
 | `onPageChange` | `(index: number) => void` | — | Fired when the active slide changes |
 | `onControllerReady` | `(c: AlbumNavController) => void` | — | Hands back a `gotoSlide`/`step` handle for driving the album from outside |
 | `className` | `string` | — | Added to the RTL canvas |
@@ -143,6 +144,20 @@ lands on the same spread instead of straddling a turn.
 - `SLIDER` — a Swiper carousel; autoplay uses Swiper's own Autoplay module.
 - `GRID` — a responsive mosaic of every greeting, bracketed by the covers.
   Presentation flags do not apply.
+
+## Kiosk playback
+
+Both animated layouts stop themselves when a reader takes over — Swiper pauses
+under a hovering cursor and after a swipe, and the book stops its ticker when a
+page is turned by hand. That is right for somebody reading, and wrong for a
+projector at an event: the laptop driving it has a cursor lying somewhere over
+the image, and one nudge of the trackpad leaves the room looking at a single
+greeting for the rest of the evening.
+
+`kiosk` turns those courtesies off. Pages still turn by hand — a passer-by can
+skip ahead — but the presentation always resumes, and nothing an idle pointer
+does stops it. Pair it with `showControls={false}`, and with
+`loopPresentation` so the album does not settle on its back cover.
 
 ## Cover templates
 

@@ -35,6 +35,7 @@ export function AlbumEngine({
   viewVariant = "full",
   showBackCover = true,
   showControls = true,
+  kiosk = false,
   className,
   onPageChange,
   onControllerReady,
@@ -129,6 +130,7 @@ export function AlbumEngine({
           autoplaySpeed={albumData.autoplaySpeed ?? 5000}
           loop={albumData.loopPresentation ?? true}
           showControls={showControls}
+          kiosk={kiosk}
           onPageChange={handlePageChange}
           bindNavigator={onControllerReady ? bindNavigator : undefined}
         />

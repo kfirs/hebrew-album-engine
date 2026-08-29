@@ -156,6 +156,13 @@ export interface AlbumEngineProps {
   showBackCover?: boolean;
   /** Set to false for kiosk-style playback with no navigation affordances. */
   showControls?: boolean;
+  /**
+   * Unattended playback on a screen nobody is watching over: a projector at an
+   * event, a display in a foyer. The presentation then refuses to stop for a
+   * cursor left lying over the album or a bump of the trackpad — pauses that
+   * are the right courtesy to a reader and a dead screen to a room.
+   */
+  kiosk?: boolean;
   className?: string;
   onPageChange?: (index: number) => void;
   /**
@@ -190,6 +197,8 @@ export interface LayoutViewProps {
   autoplaySpeed: number;
   loop: boolean;
   showControls: boolean;
+  /** Playback must not stop by itself; see `AlbumEngineProps.kiosk`. */
+  kiosk: boolean;
   onPageChange?: (index: number) => void;
   /**
    * Registers the seek surface the layout can provide, and withdraws it with

@@ -35,6 +35,7 @@ export function PageFlipView({
   autoplaySpeed,
   loop,
   showControls,
+  kiosk,
   onPageChange,
   bindNavigator,
 }: LayoutViewProps) {
@@ -247,16 +248,22 @@ export function PageFlipView({
 
   // Turning a page by hand ends the presentation. Otherwise the reader stops on
   // a greeting to read it and the ticker pulls the page out from under them a
-  // few seconds later, which reads as the book jumping on its own.
+  // few seconds later, which reads as the book jumping on its own. A kiosk has
+  // no such reader, and a page turned there by a passer-by must not leave the
+  // screen frozen on it — so the turn happens and the ticker carries on.
+  const takeOver = useCallback(() => {
+    if (!kiosk) setPaused(true);
+  }, [kiosk]);
+
   const goNext = useCallback(() => {
-    setPaused(true);
+    takeOver();
     advance();
-  }, [advance]);
+  }, [advance, takeOver]);
 
   const goPrev = useCallback(() => {
-    setPaused(true);
+    takeOver();
     retreat();
-  }, [retreat]);
+  }, [retreat, takeOver]);
 
   useAutoplay({
     enabled: autoplay,
