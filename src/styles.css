@@ -1158,9 +1158,27 @@
  */
 .ae-page__collage {
   display: grid;
+  width: 100%;
+  min-height: 0;
+  align-self: stretch;
+  align-items: stretch;
+  justify-items: stretch;
+  align-content: stretch;
   grid-template-columns: repeat(var(--ae-collage-columns, 1), minmax(0, 1fr));
-  gap: clamp(6px, 1.2vw, 14px);
-  align-content: center;
+  grid-auto-rows: minmax(0, 1fr);
+  gap: clamp(8px, 1.1vw, 12px);
+}
+
+.ae-page__collage .ae-page__zoom {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: 10px;
 }
 
 .ae-page__collage .ae-page__zoom,
@@ -1169,16 +1187,28 @@
   min-height: 0;
 }
 
-/* Collage cells fill their slot; a single-photo collage keeps `contain` so a
-   lone portrait is not cropped the way a wall of thumbnails may be. */
+/* Every chosen arrangement fills its cell. A greeting with no layout still
+   uses contain for a single photo, so an older portrait is not cropped. */
 .ae-page__collage img {
+  display: block;
   width: 100%;
   height: 100%;
+  max-width: none;
+  max-height: none;
   object-fit: cover;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .ae-page__collage[style*="--ae-collage-columns:1"] img {
   object-fit: contain;
+}
+
+.ae-page__collage--full img,
+.ae-page__collage--pair img,
+.ae-page__collage--strip img,
+.ae-page__collage--collage img {
+  object-fit: cover;
 }
 
 /* A lone trailing photo spans the whole row rather than stretching beside a
@@ -1194,11 +1224,76 @@
 .ae-page__collage--full,
 .ae-page__collage--pair {
   grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
 }
 
-.ae-page__collage--full img,
-.ae-page__collage--pair img {
-  object-fit: contain;
+.ae-page__collage--full .ae-page__zoom,
+.ae-page__collage--pair .ae-page__zoom {
+  border-radius: 14px;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.08),
+    0 16px 40px rgba(15, 23, 42, 0.14);
+}
+
+/* A page of only pictures gives them the sheet. A page that also carries the
+   place's list keeps a large photograph and a readable column under it. */
+.ae-page > .ae-bg__content:not(:has(.ae-page__body)) {
+  padding: clamp(10px, 2.2%, 22px);
+  gap: 0;
+}
+
+.ae-page > .ae-bg__content:not(:has(.ae-page__body)) > .ae-page__collage {
+  height: 100%;
+}
+
+.ae-page > .ae-bg__content:has(.ae-page__media):has(.ae-page__body) {
+  justify-content: flex-start;
+  overflow: hidden;
+  gap: clamp(8px, 1.4vh, 16px);
+  padding: clamp(14px, 3.2%, 28px);
+}
+
+.ae-page > .ae-bg__content:has(.ae-page__media):has(.ae-page__body) > .ae-page__media {
+  flex: 1 1 auto;
+  min-height: 52%;
+  height: auto;
+}
+
+.ae-page > .ae-bg__content:has(.ae-page__media):has(.ae-page__body) > .ae-page__body {
+  flex: 0 1 auto;
+  max-height: 42%;
+  min-height: 0;
+  max-width: none;
+  overflow: auto;
+}
+
+.ae-page:has(.ae-page__media) .ae-page__text > p:first-child {
+  font-size: 1.55em;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-block: 0 0.35em;
+}
+
+.ae-page:has(.ae-page__media) .ae-page__text ul {
+  margin-block: 0;
+  padding-inline-start: 1.15em;
+}
+
+.ae-page:has(.ae-page__media) .ae-page__text li {
+  margin-block: 0.08em;
+  line-height: 1.35;
+}
+
+@media (min-width: 560px) {
+  .ae-page:has(.ae-page__media) .ae-page__text ul {
+    column-count: 2;
+    column-gap: 1.6em;
+  }
+
+  .ae-page:has(.ae-page__media) .ae-page__text li {
+    break-inside: avoid;
+  }
 }
 
 @media (min-width: 720px) {
@@ -1211,6 +1306,18 @@
   grid-template-columns: repeat(var(--ae-collage-columns, 3), minmax(0, 1fr));
   grid-template-rows: minmax(0, 1fr);
   align-content: stretch;
+}
+
+/* Six across a portrait page becomes a row of slivers. Two rows keeps each
+   photograph large enough to read as a picture. */
+.ae-page__collage--strip[style*="--ae-collage-columns: 4"],
+.ae-page__collage--strip[style*="--ae-collage-columns:4"],
+.ae-page__collage--strip[style*="--ae-collage-columns: 5"],
+.ae-page__collage--strip[style*="--ae-collage-columns:5"],
+.ae-page__collage--strip[style*="--ae-collage-columns: 6"],
+.ae-page__collage--strip[style*="--ae-collage-columns:6"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
 }
 
 .ae-page__collage--strip img {

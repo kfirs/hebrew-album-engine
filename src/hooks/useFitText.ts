@@ -5,7 +5,7 @@
 import { useLayoutEffect, type RefObject } from "react";
 
 /** How far a greeting may shrink before legibility matters more than fitting. */
-const MIN_SCALE = 0.55;
+const MIN_SCALE = 0.92;
 const STEPS = 6;
 
 /**

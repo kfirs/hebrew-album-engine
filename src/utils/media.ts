@@ -84,7 +84,9 @@ export function arrangePhotos(
   }
   if (layout === "STRIP") {
     const taken = photos.slice(0, 6);
-    return { mode: "strip", photos: taken, columns: Math.max(1, taken.length) };
+    // More than three across a portrait page collapses into slivers.
+    const columns = taken.length > 3 ? 3 : Math.max(1, taken.length);
+    return { mode: "strip", photos: taken, columns };
   }
   const taken = photos.slice(0, 6);
   return {
