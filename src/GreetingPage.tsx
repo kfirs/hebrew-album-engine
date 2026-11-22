@@ -8,7 +8,7 @@ import { CornerOrnament } from "./covers/CornerOrnament";
 import { useFitText } from "./hooks/useFitText";
 import { PhotoLightbox } from "./PhotoLightbox";
 import { pageStyleClass, resolvePageStyle } from "./utils/pageStyle";
-import { hasMedia, readPageMedia } from "./utils/media";
+import { arrangePhotos, hasMedia, readPageMedia } from "./utils/media";
 import type { AlbumConfig, GreetingPart, PageConfig } from "./types";
 
 export interface GreetingPageProps {
@@ -106,6 +106,7 @@ export function GreetingPage({
         ) : (
           <PhotoCollage
             photos={media.photos}
+            layout={page.photoLayout}
             onZoom={setZoomed}
           />
         )
@@ -137,30 +138,34 @@ export function GreetingPage({
  */
 function PhotoCollage({
   photos,
+  layout,
   onZoom,
 }: {
   photos: string[];
+  layout?: PageConfig["photoLayout"];
   onZoom: (src: string) => void;
 }) {
-  if (photos.length === 0) return null;
+  const arranged = arrangePhotos(layout, photos);
+  if (arranged.photos.length === 0) return null;
 
-  const columns = photos.length > 2 ? (photos.length === 4 ? 2 : 3) : photos.length;
+  const columns = arranged.columns;
   const lastSpans =
+    arranged.mode === "collage" &&
     columns > 1 &&
-    photos.length % columns === 1;
+    arranged.photos.length % columns === 1;
 
   return (
     <figure
-      className="ae-page__media ae-page__collage"
+      className={`ae-page__media ae-page__collage ae-page__collage--${arranged.mode}`}
       style={{ "--ae-collage-columns": columns } as CSSProperties}
     >
-      {photos.map((url, index) => (
+      {arranged.photos.map((url, index) => (
         <button
             key={`${url}-${index}`}
           type="button"
           className={[
             "ae-page__zoom",
-            lastSpans && index === photos.length - 1 ? "is-spanning" : null,
+            lastSpans && index === arranged.photos.length - 1 ? "is-spanning" : null,
           ]
             .filter(Boolean)
             .join(" ")}

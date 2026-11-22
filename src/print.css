@@ -152,6 +152,8 @@
   object-fit: cover;
 }
 .ae-print__leaf .ae-page__collage[style*="--ae-collage-columns:1"] img,
+.ae-print__leaf .ae-page__collage--full img,
+.ae-print__leaf .ae-page__collage--pair img,
 .ae-print__leaf .is-spanning img {
   object-fit: contain;
 }

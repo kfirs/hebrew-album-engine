@@ -1190,6 +1190,33 @@
   object-fit: contain;
 }
 
+/* A chosen layout. Absent on older greetings, which stay on the collage rules. */
+.ae-page__collage--full,
+.ae-page__collage--pair {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.ae-page__collage--full img,
+.ae-page__collage--pair img {
+  object-fit: contain;
+}
+
+@media (min-width: 720px) {
+  .ae-page__collage--pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.ae-page__collage--strip {
+  grid-template-columns: repeat(var(--ae-collage-columns, 3), minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  align-content: stretch;
+}
+
+.ae-page__collage--strip img {
+  object-fit: cover;
+}
+
 /*
  * Video greetings. The player takes the media slot's own sizing; rounded
  * corners and shadow match the photo treatment so pages read as one family.

@@ -51,6 +51,19 @@ export const PAGE_STYLE_TYPES: readonly PageStyleType[] = [
   "ALBUM_CORNERS",
 ];
 
+/**
+ * How the photos on one page share that page. Absent means the engine picks
+ * from the count, which is what every greeting written before this choice did.
+ */
+export type PhotoLayoutType = "FULL" | "PAIR" | "STRIP" | "COLLAGE";
+
+export const PHOTO_LAYOUT_TYPES: readonly PhotoLayoutType[] = [
+  "FULL",
+  "PAIR",
+  "STRIP",
+  "COLLAGE",
+];
+
 /** A single greeting page. Mirrors the `Page` relational model. */
 export interface PageConfig {
   id: string;
@@ -61,6 +74,13 @@ export interface PageConfig {
    * an auto-collage on the media page; order matters, duplicates are dropped.
    */
   photoUrls?: string[] | null;
+  /**
+   * Arrangement of this page's photos. Null or absent keeps the automatic
+   * collage, so an older greeting does not change when the field arrives.
+   * `FULL` uses the first photo, `PAIR` the first two, and `STRIP` or
+   * `COLLAGE` up to six.
+   */
+  photoLayout?: PhotoLayoutType | null;
   /**
    * A video greeting. When present it takes the media page's slot — the player
    * renders instead of any collage — and splits the greeting exactly like a

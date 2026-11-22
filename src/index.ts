@@ -29,6 +29,7 @@ export {
   COVER_STYLE_TYPES,
   LAYOUT_TYPES,
   PAGE_STYLE_TYPES,
+  PHOTO_LAYOUT_TYPES,
 } from "./types";
 export type {
   AlbumConfig,
@@ -42,6 +43,7 @@ export type {
   LayoutViewProps,
   PageConfig,
   PageStyleType,
+  PhotoLayoutType,
   ViewVariant,
 } from "./types";
 export { backgroundStyle } from "./utils/background";

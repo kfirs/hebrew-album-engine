@@ -47,12 +47,15 @@ export function buildSlides(
  * the words first, then the media (a video player or a photo collage) — because
  * a single page has to shrink both to fit one. Anything carrying only one of
  * the two is left as a single page.
+ *
+ * A page that names its photo layout was composed as one leaf (the place's
+ * words beside a chosen grid), so the words stay with the pictures.
  */
 function splitGreeting(page: PageConfig): AlbumSlide[] {
   const hasText = hasWords(page.html);
   const hasVisual = hasMedia(readPageMedia(page));
 
-  if (!hasText || !hasVisual) {
+  if (!hasText || !hasVisual || page.photoLayout) {
     return [{ kind: "page", key: page.id, page }];
   }
 
